@@ -1,4 +1,4 @@
-const scripts = ['listsoflinks.js','links.js'];
+const scripts = ['renderParameters.js','links.js'];
 const v = Date.now();
 scripts.forEach(src => {
   const s = document.createElement('script');
