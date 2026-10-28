@@ -50,8 +50,8 @@ renderParameters.resourceLocations
        , description:"🐦🐦"
     }
     ,{
-        metaURL: "proof.am#30231"
-        , url:"https://github.com/30231"
+        metaURL: "jjj.ooo#64"
+        , url:"https://github.com/jjjooo64"
         , description:"Amazing repositories coming soon..."
     }
     ,{
