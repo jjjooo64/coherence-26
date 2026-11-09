@@ -39,6 +39,12 @@ renderParameters.resourceLocations
 =
 [
     {
+       metaURL: "jjj.ooo#verbos"
+       , url:"verbos.jjj.ooo"
+       ,nonclickable: false
+       , description: "disfruta"
+    }
+    ,{
        metaURL: "notfake.id"
        , url:"On Discord under the username: notfake.id"
        ,nonclickable: true
