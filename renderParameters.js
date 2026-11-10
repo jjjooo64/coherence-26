@@ -40,7 +40,7 @@ renderParameters.resourceLocations
 [
     {
        metaURL: "jjj.ooo#verbos"
-       , url:"verbos.jjj.ooo"
+       , url:"https://verbos.jjj.ooo"
        ,nonclickable: false
        , description: "disfruta"
     }
