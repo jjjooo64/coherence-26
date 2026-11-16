@@ -1,7 +1,7 @@
 const renderParameters = {};
 renderParameters.title = "Footprint Coherence Via Circular Links.";
-renderParameters.greeting = "Just because someone sent you here, doesn't mean they are me. Below are links and/or directions for finding stuff I created or manage.";
-renderParameters.conclusion = "But don't take my word for it. Follow a pointer below to see if the thing it references also refers you back here.";
+renderParameters.greeting = "";
+renderParameters.conclusion = "Follow a pointer below to see if the thing it references also refers you back here.";
 renderParameters.goodbye = "Similar lists are accessible through the following domains under my control. But don't take my word for it:";
 renderParameters.tagFoundSmallText = "";//"The URL in your address bar includes extra information suggesting that...";
 renderParameters.tagFoundBigText
