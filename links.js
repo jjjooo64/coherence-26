@@ -173,9 +173,12 @@ if (renderParameters.title)
 var center = document.createElement("div");
 center.className = 'center';
 document.body.appendChild(center);
-var greetingdiv = document.createElement("div");
+var greetingdiv = createElementWithTag_Text_andAppendTo_("div", br(renderParameters.title,2), center);
 greetingdiv.id = "greetings"
-center.appendChild(greetingdiv);
+var secretBox = document.createElement("span");
+secretBox.id = "secretbox";
+greetingsdiv.appendChild(secretBox);
+secretBox.innerText = renderParameters.boxFiller;
 var h2;
 
 
@@ -195,8 +198,8 @@ function createNameListingFromProtocol_Domain_andAppendTo_(protocol, domain,pare
 
   div.className = "namelisting";
 }
-
-var belowarediv = createElementWithTag_Text_andAppendTo_("div", renderParameters.title + "<br><br>" + renderParameters.greeting  + "<br><br>" + renderParameters.conclusion + "<br>" ,greetingdiv);
+const br = (s,n)=>s?(s+("<br>".repeat(n))):"";
+var belowarediv = createElementWithTag_Text_andAppendTo_("div",   br(renderParameters.greeting,2)  + br(renderParameters.conclusion,1) ,greetingdiv);
  belowarediv.id = "beloware";
 
 // Metaurl is "domain" or "domain/#tag". A match is an exact domain and hashtag
