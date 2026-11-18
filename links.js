@@ -279,7 +279,7 @@ for (var item of renderParameters.resourceLocations)
     var entry = { metaurl: item.metaURL, resource: item, parsed: parsed };
     if (parsed[0] === here[0] && parsed[1] === here[1])
         matches.push(entry);
-    else if (parsed[0] === here[1])
+    else if (parsed[0] === here[0])
         sameDomain.push(entry);
     else
         otherDomain.push(entry);
