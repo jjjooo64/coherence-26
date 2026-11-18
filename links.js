@@ -26,11 +26,6 @@ function createLinkWithURL_Tag_Parent_withText_(url,wrapperTag,parent,text)
 
 }
 
-
-
-
-
-
 var style = document.createElement('style');
 style.type = 'text/css';
 style.innerHTML =
@@ -66,11 +61,33 @@ a {
     font-style: normal;
 }
 
-#youmayfind, #beloware, #fullnamediv, #theabove{
+#youmayfind, #greetdiv, #fullnamediv, #theabove{
   font-size: 50px;
   font-weight: bold;
 }
 
+#concludediv{
+  font-size: 40px;
+  font-weight: bold;
+}
+
+#secretbox{
+    text-align: center;
+    font-weight: bold;
+    font-size: 35px;
+    border: white;
+    border-style: ridge;
+    background: black;
+    margin-top: 35px;
+    margin-bottom: 35px;
+    left: 15%;
+    position: relative;
+    width: 70%;
+    font-style: normal;
+    padding: 10px;
+    color: cyan;
+    border-width: 10px;
+}
 
 
 #mynameis, #includesextrainfo{
@@ -167,23 +184,7 @@ text-decoration: underline;
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
 
-if (renderParameters.title)
-  document.title = renderParameters.title;
-
-var center = document.createElement("div");
-center.className = 'center';
-document.body.appendChild(center);
-var greetingdiv = createElementWithTag_Text_andAppendTo_("div", br(renderParameters.title,2), center);
-greetingdiv.id = "greetings"
-var secretBox = document.createElement("span");
-secretBox.id = "secretbox";
-greetingsdiv.appendChild(secretBox);
-secretBox.innerText = renderParameters.boxFiller;
-var h2;
-
-
-
-
+function br (s,n){return s?(s+("<br>".repeat(n))):"";}
 
 function createNameListingFromProtocol_Domain_andAppendTo_(protocol, domain,parent)
 {
@@ -192,55 +193,17 @@ function createNameListingFromProtocol_Domain_andAppendTo_(protocol, domain,pare
   (  protocol + "://" + domain
     ,""
     ,div
-    , " " + domain //" ( " +domain+" )"
+    , " " + domain
   );
   a.className = "domainlink";
 
   div.className = "namelisting";
 }
-const br = (s,n)=>s?(s+("<br>".repeat(n))):"";
-var belowarediv = createElementWithTag_Text_andAppendTo_("div",   br(renderParameters.greeting,2)  + br(renderParameters.conclusion,1) ,greetingdiv);
- belowarediv.id = "beloware";
 
-// Metaurl is "domain" or "domain/#tag". A match is an exact domain and hashtag
-// pair. No hashtag on both sides is a match. The resource url is not compared.
-/*
-function parseMetaurl(metaurl)
-{
-    var lower = String(metaurl).toLowerCase();
-    var splitAt = lower.indexOf("#");
-    var domain; 
-    var tag;
-    var hasHash;
-    if (splitAt < 0) {
-        splitAt = lower.lastIndexOf("/");
-        hasHash = false;
-    }
-    else{
-        hasHash = "true";
-    }
-
-    if (splitAt >= 0) {
-        domain = lower.slice(0, splitAt);
-        tag = lower.slice(splitAt + 1);
-    }
-    else{
-        domain = lower;
-        tag = "";
-    }
-
-    return { domain: domain.at(-1)=="/" ? domain.slice(0,-1) : domain, tag: tag, hasHash: hasHash };
-}
-*/
 function replaceClusters(str, alphabet, replacer) {
-  if (!alphabet) return str; // nothing to match
-
-  // Escape characters that are special inside a character class
+  if (!alphabet) return str;
   const escaped = alphabet.replace(/[-\\\]^]/g, '\\$&');
   const regex = new RegExp(`[${escaped}]+`, 'g');
-
-  // Use a function so the replacer is treated literally
-  // (avoids $&, $1, etc. being interpreted)
   return str.replace(regex, () => replacer);
 }
 
@@ -256,151 +219,217 @@ function parseMetaurl(metaurl)
     else{
         return [lower, ""];
     }
-
-
 }
 
 function addressBar()
 {
-    /*
-    var hash = location.hash;
-    var tag = "";
-    if (hash && hash !== "#")
-        tag = decodeURIComponent(hash.slice(1)).trim().toLowerCase();
-    return { domain: location.hostname.toLowerCase(), tag: tag };
-    */
     return parseMetaurl(location.href.slice(location.protocol.length + 2));
 }
 
-var here = addressBar();
-var matches = [];
-var sameDomain = [];
-var otherDomain = [];
-for (var item of renderParameters.resourceLocations)
-{
-    var parsed = parseMetaurl(item.metaURL);
-    var entry = { metaurl: item.metaURL, resource: item, parsed: parsed };
-    if (parsed[0] === here[0] && parsed[1] === here[1])
-        matches.push(entry);
-    else if (parsed[0] === here[0])
-        sameDomain.push(entry);
-    else
-        otherDomain.push(entry);
-}
+async function main() {
+  const data = await renderParameters.load();
+  renderParameters.domains = data.domains;
+  renderParameters.resourceLocations = data.resourceLocations;
+  renderParameters.verificationText = data.verificationText;
 
-var extrainfodiv = document.createElement("div");
-center.appendChild(extrainfodiv);
-extrainfodiv.className = "extrainfo";
-extrainfodiv.id = "extrainfo";
-var resourcesdiv = document.createElement("div");
-center.appendChild(resourcesdiv);
-resourcesdiv.className = "resources";
-resourcesdiv.id = "resources";
+  if (renderParameters.title)
+    document.title = renderParameters.title;
 
-var expander = document.createElement("div");
-expander.id="expander";
-expander.addEventListener
-(
-  "click"
-  , (e) =>
-    {
-      resourcesdiv.className = "resourcesexpanded";
-      expander.hidden = true;
+  var center = document.createElement("div");
+  center.className = 'center';
+  document.body.appendChild(center);
+  var greetingsdiv = createElementWithTag_Text_andAppendTo_("div", br(renderParameters.title,2), center);
+  greetingsdiv.id = "greetings"
+  var secretBox = document.createElement("div");
+  secretBox.id = "secretbox";
+  greetingsdiv.appendChild(secretBox);
+  secretBox.innerText = renderParameters.verificationText || renderParameters.boxFiller;
 
+  // Secret tap sequence to open admin: 
+  // 1 (start) -> 2 (0.7-1.2s) -> 3 (0-300ms) -> 4 (0.7-1.2s) -> 5 (0.7-1.2s) -> 6 (0-300ms)
+  (function () {
+    const steps = [
+      { min: 700, max: 1200 }, // after 1
+      { min: 0,   max: 300  }, // after 2
+      { min: 700, max: 1200 }, // after 3
+      { min: 700, max: 1200 }, // after 4
+      { min: 0,   max: 300  }  // after 5
+    ];
+    let step = 0;
+    let last = 0;
+    let timer = null;
+
+    function reset() {
+      step = 0;
+      last = 0;
+      if (timer) clearTimeout(timer);
+      timer = null;
     }
-);
 
-createElementWithTag_Text_andAppendTo_("div","...",expander);
-createElementWithTag_Text_andAppendTo_("button","expand list",expander);
-center.appendChild(expander);
-
-var goodbye = document.createElement("div");
-goodbye.className = "goodbye";
-goodbye.id = "goodbye";
-center.appendChild(goodbye);
-
-const resourceRenderer
-=
-{
-   rendered : {}
-  ,render(metaurl,resource,highlight)
-  {
-    var url = resource.url
-    if (!this.rendered[url] || !url)
-    {
-      this.rendered[url]=true;
-      var div = document.createElement("div");
-      resourcesdiv.appendChild(div);
-      createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl";
-      var rlw = document.createElement("div");
-      rlw.className = "resourcelinkwrapping";
-      if (resource.nonclickable)
-      {
-        rlw.textContent = url;
+    secretBox.addEventListener("click", () => {
+      const now = Date.now();
+      if (step === 0) {
+        step = 1;
+        last = now;
+        timer = setTimeout(reset, 1500);
+        return;
       }
+      const dt = now - last;
+      const expected = steps[step - 1];
+      if (dt >= expected.min && dt <= expected.max) {
+        step++;
+        last = now;
+        if (timer) clearTimeout(timer);
+        if (step === 6) {
+          reset();
+          const base = (renderParameters.endpoint || "").replace(/\/$/, "");
+          if (base) location.href = base + "/admin";
+          return;
+        }
+        timer = setTimeout(reset, 1500);
+      } else {
+        reset();
+      }
+    });
+  })();
+
+  var greetdiv = createElementWithTag_Text_andAppendTo_("div",   br(renderParameters.greeting,2)   ,greetingsdiv);
+  greetdiv.id = "greetdiv";
+
+  var concludediv = createElementWithTag_Text_andAppendTo_("div",    br(renderParameters.conclusion,1) ,greetingsdiv);
+  concludediv.id = "concludediv";
+
+  var here = addressBar();
+  var matches = [];
+  var sameDomain = [];
+  var otherDomain = [];
+  for (var item of renderParameters.resourceLocations)
+  {
+      var parsed = parseMetaurl(item.metaURL);
+      var entry = { metaurl: item.metaURL, resource: item, parsed: parsed };
+      if (parsed[0] === here[0] && parsed[1] === here[1])
+          matches.push(entry);
+      else if (parsed[0] === here[0])
+          sameDomain.push(entry);
       else
+          otherDomain.push(entry);
+  }
+
+  var extrainfodiv = document.createElement("div");
+  center.appendChild(extrainfodiv);
+  extrainfodiv.className = "extrainfo";
+  extrainfodiv.id = "extrainfo";
+  var resourcesdiv = document.createElement("div");
+  center.appendChild(resourcesdiv);
+  resourcesdiv.className = "resources";
+  resourcesdiv.id = "resources";
+
+  var expander = document.createElement("div");
+  expander.id="expander";
+  expander.addEventListener
+  (
+    "click"
+    , (e) =>
       {
-        var a = document.createElement("a");
-        a.href = url;
-        a.innerText = url;
-        a.className = "resourcelink";
-        rlw.appendChild(a);
+        resourcesdiv.className = "resourcesexpanded";
+        expander.hidden = true;
       }
-      div.appendChild(rlw);
-      div.className = Object.keys(this.rendered).length%2?"resourcelisting1":"resourcelisting0";
-      if(highlight)
-        div.classList.add("my-class");
-      createElementWithTag_Text_andAppendTo_("p",resource.description||"",div).className="description";
+  );
+
+  createElementWithTag_Text_andAppendTo_("div","...",expander);
+  createElementWithTag_Text_andAppendTo_("button","expand list",expander);
+  center.appendChild(expander);
+
+  var goodbye = document.createElement("div");
+  goodbye.className = "goodbye";
+  goodbye.id = "goodbye";
+  center.appendChild(goodbye);
+
+  const resourceRenderer
+  =
+  {
+     rendered : {}
+    ,render(metaurl,resource,highlight)
+    {
+      var url = resource.url
+      if (!this.rendered[url] || !url)
+      {
+        this.rendered[url]=true;
+        var div = document.createElement("div");
+        resourcesdiv.appendChild(div);
+        createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl";
+        var rlw = document.createElement("div");
+        rlw.className = "resourcelinkwrapping";
+        if (resource.nonclickable)
+        {
+          rlw.textContent = url;
+        }
+        else
+        {
+          var a = document.createElement("a");
+          a.href = url;
+          a.innerText = url;
+          a.className = "resourcelink";
+          rlw.appendChild(a);
+        }
+        div.appendChild(rlw);
+        div.className = Object.keys(this.rendered).length%2?"resourcelisting1":"resourcelisting0";
+        if(highlight)
+          div.classList.add("my-class");
+        createElementWithTag_Text_andAppendTo_("p",resource.description||"",div).className="description";
+      }
+    }
+  };
+
+  var matchCount = matches.length;
+  if(matchCount>0)
+  {
+     createElementWithTag_Text_andAppendTo_
+     (
+         "div"
+         ,  renderParameters.tagFoundSmallText
+        ,extrainfodiv
+    ).id = "includesextrainfo";
+
+    createElementWithTag_Text_andAppendTo_
+    (
+         "div"
+        , renderParameters.tagFoundBigText(matchCount)
+        , extrainfodiv
+    ).id = "youmayfind";
+
+    for (var match of matches)
+    {
+      resourceRenderer.render(match.metaurl , match.resource, true);
     }
   }
-};
 
-var matchCount = matches.length;
-if(matchCount>0)
-{
-   createElementWithTag_Text_andAppendTo_
-   (
-       "div"
-       ,  renderParameters.tagFoundSmallText
-      ,extrainfodiv
-  ).id = "includesextrainfo";
-
-  createElementWithTag_Text_andAppendTo_
-  (
-       "div"
-      , renderParameters.tagFoundBigText(matchCount)
-      , extrainfodiv
-  ).id = "youmayfind";
-
-  for (var match of matches)
-  {
-    resourceRenderer.render(match.metaurl , match.resource, true);
-  }
+    const urlParams = new URLSearchParams(window.location.search);
+    const hideExtras = urlParams.get('hideExtras') !== null ;
+    if (!hideExtras)
+    {
+        for (var entry of sameDomain.concat(otherDomain))
+        {
+            resourceRenderer.render(entry.metaurl , entry.resource);
+        }
+    }
+     createElementWithTag_Text_andAppendTo_("div", renderParameters.goodbye, goodbye).id="theabove";
+   var allDomains = renderParameters.maindomains.concat(renderParameters.domains);
+   var currentDomains = allDomains.filter(e=>e[1].toLowerCase()===here[0]);
+   var unMatchedDomains = allDomains.filter(e=>e[1].toLowerCase()!==here[0]);
+    for (d of hideExtras ? (matchCount ? currentDomains : []) : currentDomains.concat(unMatchedDomains))
+    {
+      var div
+      = createLinkWithURL_Tag_Parent_withText_
+      (  d[0] + "://" + d[1]
+        ,"div"
+        ,goodbye
+        ,  d[1]
+      )
+      ;
+      div.className = "domainlinkwrapper";
+      div.getElementsByTagName("a")[0].className = "domainlink";
+    }
 }
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const hideExtras = urlParams.get('hideExtras') !== null ;
-  if (!hideExtras)
-  {
-      for (var entry of sameDomain.concat(otherDomain))
-      {
-          resourceRenderer.render(entry.metaurl , entry.resource);
-      }
-  }
-   createElementWithTag_Text_andAppendTo_("div", renderParameters.goodbye, goodbye).id="theabove";
- var allDomains = renderParameters.maindomains.concat(renderParameters.domains);
- var currentDomains = allDomains.filter(e=>e[1].toLowerCase()===here[0]);
- var unMatchedDomains = allDomains.filter(e=>e[1].toLowerCase()!==here[0]);
-  for (d of hideExtras ? (matchCount ? currentDomains : []) : currentDomains.concat(unMatchedDomains))
-  {
-    var div
-    = createLinkWithURL_Tag_Parent_withText_
-    (  d[0] + "://" + d[1]
-      ,"div"
-      ,goodbye
-      ,  d[1]
-    )
-    ;
-    div.className = "domainlinkwrapper";
-    div.getElementsByTagName("a")[0].className = "domainlink";
-  }
+main();

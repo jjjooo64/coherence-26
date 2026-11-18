@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Secret code endpoint (Lambda Function URL + DynamoDB + SSM)
+
+Parameters:
+  AdminPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+  TableName:
+    Type: String
+    Default: SecretCode
+  FunctionName:
+    Type: String
+    Default: SecretCodeFunction
+  RoleName:
+    Type: String
+    Default: SecretCodeLambdaRole
+  ParameterName:
+    Type: String
+    Default: /secret-code/admin-password
+
+Resources:
+  SecretCodeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  AdminPasswordParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Ref ParameterName
+      Type: String
+      Value: !Ref AdminPassword
+      Description: Admin password for secret code endpoint
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SecretCodeAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt SecretCodeTable.Arn
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:PutParameter
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ParameterName}"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                Resource: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/ssm"
+
+  SecretCodeFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+          PARAMETER_NAME: !Ref ParameterName
+      Code:
+        ZipFile: |
+          exports.handler = async () => ({ statusCode: 200, body: "stub" });
+
+  FunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref SecretCodeFunction
+      AuthType: NONE
+      Cors:
+        AllowOrigins: ["*"]
+        AllowMethods: ["*"]
+        AllowHeaders: ["Content-Type"]
+
+  FunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SecretCodeFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  FunctionUrl:
+    Value: !GetAtt FunctionUrl.FunctionUrl
+  AdminUrl:
+    Value: !Sub "${FunctionUrl.FunctionUrl}admin"
+  CodeEndpoint:
+    Value: !Sub "${FunctionUrl.FunctionUrl}code"

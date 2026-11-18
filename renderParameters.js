@@ -1,80 +1,66 @@
 const renderParameters = {};
 renderParameters.title = "";
-renderParameters.boxFiller = "I control all content on the root domain of this page and every subdomain of that domain. I can make a secret code of your choice appear in this box upon request."
+renderParameters.boxFiller = "I control all content on the root domain of this page and every subdomain of that domain. I can make a secret code of your choice appear in this box upon request.";
 renderParameters.greeting = "Below is a list of other things I made and/or manage";
 renderParameters.conclusion = "Skeptics may follow a pointer below to see if the thing it references also refers you back here.";
 renderParameters.goodbye = "Similar lists are accessible through the following domains under my control. But don't take my word for it:";
-renderParameters.tagFoundSmallText = "";//"The URL in your address bar includes extra information suggesting that...";
-renderParameters.tagFoundBigText
-=
-function (numberOfMatches)
-{
+renderParameters.tagFoundSmallText = "";
+renderParameters.tagFoundBigText = function (numberOfMatches) {
     return (
         "...you may find the first "
-        +
-        (
-            numberOfMatches == 1
-            ? "link"
-            :""+numberOfMatches + " links"
-        )
+        + (numberOfMatches == 1 ? "link" : "" + numberOfMatches + " links")
         + " particularly useful."
     );
-};//...you may find the first pointer particularly useful."
-renderParameters.maindomains
-=
-[
-    //["https", "rus.tf"]
-];
+};
+renderParameters.maindomains = [];
 
-renderParameters.domains
-=[
-    ,["https", "proof.am"]
-    ,["https", "notfake.id"]
-    ,["https", "okokstop.com"]
-    ,["https", "jjj.ooo"] 
- 
-];
+// Set this to your Function URL (no trailing slash)
+renderParameters.endpoint = "https://oh4h4wfp6p5ehekkq7fbw3odtq0vkgdj.lambda-url.us-east-1.on.aws";
 
-
-renderParameters.resourceLocations
-=
-[
-    {
-       metaURL: "jjj.ooo#verbos"
-       , url:"https://verbos.jjj.ooo"
-       ,nonclickable: false
-       , description: "disfruta"
+// Tries the endpoint; falls back to the dummy values if it fails.
+// Returns { domains, resourceLocations, verificationText }
+renderParameters.load = async function () {
+    // Dummy values (demonstration of the expected format)
+    const fallback = {
+        domains: [
+            ["https", "example.com"],
+            ["https", "sub.example.org"]
+        ],
+        resourceLocations: [
+            {
+                metaURL: "example.com#tag",
+                url: "https://example.com/path",
+                nonclickable: false,
+                description: "Example clickable resource"
+            },
+            {
+                metaURL: "example.org",
+                url: "Plain text or Discord handle",
+                nonclickable: true,
+                description: "Example non-clickable resource"
+            }
+        ],
+        verificationText: null
+    };
+    if (!renderParameters.endpoint) return fallback;
+    const base = renderParameters.endpoint.replace(/\/$/, "");
+    try {
+        const [paramsRes, textRes] = await Promise.all([
+            fetch(base + "/"),
+            fetch(base + "/code")
+        ]);
+        const result = { ...fallback };
+        if (paramsRes.ok) {
+            const params = await paramsRes.json();
+            if (Array.isArray(params.domains)) result.domains = params.domains;
+            if (Array.isArray(params.resourceLocations)) result.resourceLocations = params.resourceLocations;
+        }
+        if (textRes.ok) {
+            const text = await textRes.json();
+            if (text.verificationText) result.verificationText = text.verificationText;
+        }
+        return result;
+    } catch (e) {
+        return fallback;
     }
-    ,{
-       metaURL: "notfake.id"
-       , url:"On Discord under the username: notfake.id"
-       ,nonclickable: true
-       , description: ""
-    }
-    ,{
-       metaURL: "proof.am#rsx"
-       , url:"https://x.com/rustysand7x"
-       , description:"🐦🐦"
-    }
-    ,{
-        metaURL: "jjj.ooo#64"
-        , url:"https://github.com/jjjooo64"
-        , description:"Amazing repositories coming soon..."
-    }
-    ,{
-       metaURL: "notfake.id#resume"
-       , url:""
-       ,nonclickable: true
-       , description:"Digital CV coming soon..."
-    }
-    ,{
-        metaURL: "proof.am#rustysan"
-        , url:"mailto:rustysan@amazon.com"
-        , description:"I'm the owner of this email address. I will send you a verification email from this address upon request."
-    }
-    ,{
-        metaURL: "proof.am#gatech"
-        , url:"mailto:easyproof@gatech.edu"
-        , description:"If you send an email to this address, I will reply from jspinoza3@gatech.edu"
-    }
-];
+};
