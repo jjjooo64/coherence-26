@@ -62,31 +62,57 @@ a {
 }
 
 #youmayfind, #greetdiv, #fullnamediv, #theabove{
-  font-size: 50px;
+  font-size: 40px;
   font-weight: bold;
 }
 
 #concludediv{
-  font-size: 40px;
+  font-size: 35px;
   font-weight: bold;
 }
 
 #secretbox{
     text-align: center;
     font-weight: bold;
-    font-size: 35px;
+    font-size: 30px;
     border: white;
     border-style: ridge;
     background: black;
-    margin-top: 35px;
-    margin-bottom: 35px;
-    left: 15%;
-    position: relative;
+    margin: 35px auto;
     width: 70%;
+    max-width: 100%;
+    box-sizing: border-box;
     font-style: normal;
     padding: 10px;
     color: cyan;
     border-width: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#secretbox {
+  background: linear-gradient(
+    115deg,
+    #e8ffff 0%,
+    #b8f0f0 20%,
+    #f0e8ff 40%,
+    #e0f8e8 60%,
+    #fff8e0 80%,
+    #e8ffff 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: pearl 8s ease-in-out infinite;
+}
+
+@keyframes pearl {
+  0%   { background-position: 0% 30%; }
+  25%  { background-position: 40% 70%; }
+  50%  { background-position: 80% 20%; }
+  75%  { background-position: 30% 80%; }
+  100% { background-position: 0% 30%; }
 }
 
 
@@ -127,16 +153,64 @@ a {
   height: 8vh;
 }
 
-#expander, #expander > button{
-  font-size:2.5vh;
-
+#expander > button {
+  background: rgba(0, 255, 255, 0.25);
+  color: black;
+  border: 5px outset black;
+  font-family: serif;
+  font-size: 2.5vh;
+  position: relative;
+  overflow: hidden;
 }
 
-#expander > button, #expander > div{
-  height:3vh;
-
+#expander > button .ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 180, 200, 0.35);
+  transform: translate(-50%, -50%);
+  animation: ripple 14.4s ease-out infinite;
+  filter: blur(1px);
+  pointer-events: none;
 }
 
+  
+
+#expander > button .ring:nth-child(1) { animation-delay: 0s; }
+#expander > button .ring:nth-child(2) { animation-delay: 1.2s; }
+#expander > button .ring:nth-child(3) { animation-delay: 2.4s; }
+#expander > button .ring:nth-child(4) { animation-delay: 3.6s; }
+
+#expander > button .ring:nth-child(5) { animation-delay: 4.8s; }
+#expander > button .ring:nth-child(6) { animation-delay: 6.0s; }
+#expander > button .ring:nth-child(7) { animation-delay: 7.2s; }
+#expander > button .ring:nth-child(8) { animation-delay: 8.4s; }
+
+#expander > button .ring:nth-child(9) { animation-delay: 9.6s; }
+#expander > button .ring:nth-child(10) { animation-delay: 10.8s; }
+#expander > button .ring:nth-child(11) { animation-delay: 12.0s; }
+#expander > button .ring:nth-child(12) { animation-delay: 13.2s; }
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.5;
+    border-width: 4px;
+  }
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    width: 240%;
+    height: 500%;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
 
 .domainlinkwrapper{
   font-size:35px;
@@ -337,7 +411,13 @@ async function main() {
   );
 
   createElementWithTag_Text_andAppendTo_("div","...",expander);
-  createElementWithTag_Text_andAppendTo_("button","expand list",expander);
+  var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
+
+for (var i = 0; i < 12; i++) {
+  var ring = document.createElement("span");
+  ring.className = "ring";
+  expandBtn.appendChild(ring);
+}
   center.appendChild(expander);
 
   var goodbye = document.createElement("div");
