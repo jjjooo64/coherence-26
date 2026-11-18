@@ -154,7 +154,7 @@ a {
 }
 
 #expander > button {
-  background: rgba(0, 255, 255, 0.25);
+  background: rgba(0, 255, 255, 0.20);
   color: black;
   border: 5px outset black;
   font-family: serif;
@@ -170,48 +170,43 @@ a {
   width: 0;
   height: 0;
   border-radius: 50%;
-  border: 3px solid rgba(0, 180, 200, 0.35);
+  border: 0px solid rgba(0, 180, 200, 0.35);
   transform: translate(-50%, -50%);
-  animation: ripple 14.4s ease-out infinite;
+  animation: ripple 12s ease-out infinite;
   filter: blur(1px);
   pointer-events: none;
 }
 
-  
-
 #expander > button .ring:nth-child(1) { animation-delay: 0s; }
-#expander > button .ring:nth-child(2) { animation-delay: 1.2s; }
-#expander > button .ring:nth-child(3) { animation-delay: 2.4s; }
-#expander > button .ring:nth-child(4) { animation-delay: 3.6s; }
-
-#expander > button .ring:nth-child(5) { animation-delay: 4.8s; }
-#expander > button .ring:nth-child(6) { animation-delay: 6.0s; }
-#expander > button .ring:nth-child(7) { animation-delay: 7.2s; }
-#expander > button .ring:nth-child(8) { animation-delay: 8.4s; }
-
-#expander > button .ring:nth-child(9) { animation-delay: 9.6s; }
-#expander > button .ring:nth-child(10) { animation-delay: 10.8s; }
-#expander > button .ring:nth-child(11) { animation-delay: 12.0s; }
-#expander > button .ring:nth-child(12) { animation-delay: 13.2s; }
+#expander > button .ring:nth-child(2) { animation-delay: 2s; }
+#expander > button .ring:nth-child(3) { animation-delay: 4s; }
+#expander > button .ring:nth-child(4) { animation-delay: 6s; }
+#expander > button .ring:nth-child(5) { animation-delay: 8s; }
+#expander > button .ring:nth-child(6) { animation-delay: 10s; }
 
 @keyframes ripple {
   0% {
     width: 0;
     height: 0;
     opacity: 0.5;
-    border-width: 4px;
+    border-width: 1px;
+  }
+
+  30% {
+
+    opacity: 0.5;
+    border-width: 6px;
   }
   70% {
     opacity: 0.2;
   }
   100% {
-    width: 240%;
-    height: 500%;
+    width: 120%;
+    height: 250%;
     opacity: 0;
     border-width: 1px;
   }
 }
-
 .domainlinkwrapper{
   font-size:35px;
   padding:10px;
@@ -413,7 +408,7 @@ async function main() {
   createElementWithTag_Text_andAppendTo_("div","...",expander);
   var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
 
-for (var i = 0; i < 12; i++) {
+for (var i = 0; i < 6; i++) {
   var ring = document.createElement("span");
   ring.className = "ring";
   expandBtn.appendChild(ring);
