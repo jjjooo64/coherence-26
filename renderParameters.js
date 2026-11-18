@@ -1,6 +1,6 @@
 const renderParameters = {};
 renderParameters.title = "";
-renderParameters.boxFiller = "I control all content on the root domain of this page and every subdomain of that domain. I can make a secret code of your choice appear in this box upon request.";
+renderParameters.boxFiller = "I control all content on the root domain of this page and every subdomain of that domain. Anyone who demonstrates the ability to make the text of your choice appear in this box, proves that he is I, and I am him.";
 renderParameters.greeting = "Below is a list of other things I made and/or manage";
 renderParameters.conclusion = "Skeptics may follow a pointer below to see if the thing it references also refers you back here.";
 renderParameters.goodbye = "Similar lists are accessible through the following domains under my control. But don't take my word for it:";
