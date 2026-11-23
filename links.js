@@ -176,16 +176,20 @@ max-width: 50vh;
     height: 100%;
     text-shadow: 0 0 8px rgba(255,255,255,0.8),
                0 0 16px rgba(0,255,255,0.4);
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: start;
 }
 
 #expander > button .ring {
   position: absolute;
-  top: 50%;
+  top: 0%;
   left: 50%;
   width: 0;
   height: 0;
   border-radius: 50%;
-  border: 0px solid rgba(0, 180, 200, 1);
+  border: 0px solid rgba(250, 250, 250, 1);
   transform: translate(-50%, -50%);
   animation: ripple 12s ease-out infinite;
   filter: blur(1px);
@@ -217,7 +221,7 @@ max-width: 50vh;
   }
   100% {
     width: 100%;
-    height: 100%;
+    height: 200%;
     opacity: 0;
     border-width: 1px;
   }
