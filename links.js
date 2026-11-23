@@ -414,7 +414,7 @@ async function main() {
       }
   );
 
-  createElementWithTag_Text_andAppendTo_("div","...",expander);
+  //createElementWithTag_Text_andAppendTo_("div","...",expander);
   var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
 
 for (var i = 0; i < 6; i++) {
