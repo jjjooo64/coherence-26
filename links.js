@@ -55,7 +55,7 @@ a {
   font-size:small;
 }
 
- #resources, #expander{
+ #resources{
     background-color: white;
     color: black;
     font-style: normal;
