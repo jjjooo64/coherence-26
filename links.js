@@ -146,21 +146,30 @@ a {
 
 
 .resources{
-  height: 20vh;
+  height: 21vh;
 }
 
  #expander{
-  height: 8vh;
+  height: 9vh;
 }
 
+
 #expander > button {
-  background: rgba(0, 255, 255, 0.20);
-  color: black;
-  border: 5px outset black;
-  font-family: serif;
-  font-size: 2.5vh;
-  position: relative;
-  overflow: hidden;
+     
+    font-size: 2.4vh;
+   color: rgba(255,255,255,0.65);
+    letter-spacing: 0.3em;
+    text-transform: lowercase;
+    background: transparent;
+    font-family: serif;
+    
+    position: relative;
+    overflow: hidden;
+    border: none;
+    width: 50%;
+    height: 100%;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8),
+               0 0 16px rgba(0,255,255,0.4);
 }
 
 #expander > button .ring {
@@ -170,7 +179,7 @@ a {
   width: 0;
   height: 0;
   border-radius: 50%;
-  border: 0px solid rgba(0, 180, 200, 0.35);
+  border: 0px solid rgba(0, 180, 200, 1);
   transform: translate(-50%, -50%);
   animation: ripple 12s ease-out infinite;
   filter: blur(1px);
@@ -201,8 +210,8 @@ a {
     opacity: 0.2;
   }
   100% {
-    width: 120%;
-    height: 250%;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     border-width: 1px;
   }
