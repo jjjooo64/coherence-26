@@ -55,11 +55,6 @@ a {
   font-size:small;
 }
 
- #resources{
-    background-color: white;
-    color: black;
-    font-style: normal;
-}
 
 #youmayfind, #greetdiv, #fullnamediv, #theabove{
   font-size: 40px;
@@ -124,9 +119,7 @@ a {
   display:none;
 }
 
-.resources{
-    overflow: hidden;
-}
+
 
 .resourcelinkwrapping{
     border-style: outset;
@@ -145,7 +138,7 @@ a {
 }
 
 :root {
-  --resourcesHeight: 21vh;
+  --resourcesHeight: 30vh;
   --expanderHeight: 9vh;
   --resourcesPlusExpandersHeight: calc( (2 * var(--expanderHeight) + var(--resourcesHeight)) );
   --resourcesHeightRatio: calc(var(--resourcesHeight) / var(--resourcesPlusExpandersHeight));
@@ -153,6 +146,23 @@ a {
 
 .resources{
   height: var(--resourcesHeight);
+      overflow: scroll;
+      background-color: white;
+    color: black;
+    font-style: normal;
+    box-shadow: 0 0 5px 9px rgba(255,255,255,1);
+
+
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+
+}
+
+    .resources::-webkit-scrollbar {
+  display: none;
 }
 
  .expander{
@@ -196,7 +206,8 @@ a {
 
 #list-block {
   position: relative;
-  width:100%;
+  width:88%;
+  margin:auto;
 }
 
 #list-block > .ring {
