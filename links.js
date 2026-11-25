@@ -170,7 +170,15 @@ a {
                0 0 16px rgba(0,255,255,0.4);
     display: inline-flex;
     justify-content: center;
-    align-items: start;
+    /* align-items: start; */
+}
+
+#expander-top > button  {
+    align-items: end; 
+}
+
+#expander-bottom  > button {
+    align-items: start; 
 }
 
 #expander-top > button .ring {
