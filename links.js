@@ -149,12 +149,12 @@ a {
   height: 21vh;
 }
 
- #expander{
+ .expander{
   height: 9vh;
 }
 
 
-#expander > button {
+.expander > button {
      
     font-size: 2.4vh;
    color: rgba(255,255,255,0.65);
@@ -182,7 +182,7 @@ max-width: 50vh;
     align-items: start;
 }
 
-#expander > button .ring {
+.expander > button .ring {
   position: absolute;
   top: 0%;
   left: 50%;
@@ -196,12 +196,12 @@ max-width: 50vh;
   pointer-events: none;
 }
 
-#expander > button .ring:nth-child(1) { animation-delay: 0s; }
-#expander > button .ring:nth-child(2) { animation-delay: 2s; }
-#expander > button .ring:nth-child(3) { animation-delay: 4s; }
-#expander > button .ring:nth-child(4) { animation-delay: 6s; }
-#expander > button .ring:nth-child(5) { animation-delay: 8s; }
-#expander > button .ring:nth-child(6) { animation-delay: 10s; }
+.expander > button .ring:nth-child(1) { animation-delay: 0s; }
+.expander > button .ring:nth-child(2) { animation-delay: 2s; }
+.expander > button .ring:nth-child(3) { animation-delay: 4s; }
+.expander > button .ring:nth-child(4) { animation-delay: 6s; }
+.expander > button .ring:nth-child(5) { animation-delay: 8s; }
+.expander > button .ring:nth-child(6) { animation-delay: 10s; }
 
 @keyframes ripple {
   0% {
@@ -402,37 +402,59 @@ async function main() {
       else
           otherDomain.push(entry);
   }
-
+    function installExpander(id)
+    {
+        function expandListener (e)
+          {
+            resourcesdiv.className = "resourcesexpanded";
+            expander.hidden = true;
+              expandertop.hidden = true;
+          };
+        
+        var expander = document.createElement("div");
+        expandertop.className = "expander";
+        expander.id=id;
+        var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
+          
+        for (var i = 0; i < 6; i++) {
+          var ring = document.createElement("span");
+          ring.className = "ring";
+          expandBtn.appendChild(ring);
+        }
+    
+        expander.addEventListener("click", expandListener);
+        center.appendChild(expander);
+    }
+    
   var extrainfodiv = document.createElement("div");
   center.appendChild(extrainfodiv);
   extrainfodiv.className = "extrainfo";
   extrainfodiv.id = "extrainfo";
+    
+  const topExpander = installExpander("expander-top");
+    
   var resourcesdiv = document.createElement("div");
   center.appendChild(resourcesdiv);
   resourcesdiv.className = "resources";
   resourcesdiv.id = "resources";
 
-  var expander = document.createElement("div");
-  expander.id="expander";
-  expander.addEventListener
-  (
-    "click"
-    , (e) =>
-      {
-        resourcesdiv.className = "resourcesexpanded";
-        expander.hidden = true;
-      }
-  );
 
-  //createElementWithTag_Text_andAppendTo_("div","...",expander);
-  var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
 
-for (var i = 0; i < 6; i++) {
-  var ring = document.createElement("span");
-  ring.className = "ring";
-  expandBtn.appendChild(ring);
-}
-  center.appendChild(expander);
+  
+
+
+
+   const expanderBottom = installExpander("expander-bottom");
+    
+   
+    
+
+    
+
+    
+
+    
+
 
   var goodbye = document.createElement("div");
   goodbye.className = "goodbye";
