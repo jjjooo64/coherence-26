@@ -153,47 +153,48 @@ a {
   height: 9vh;
 }
 
-
 .expander > button {
-     
     font-size: 2.4vh;
-   color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.65);
     letter-spacing: 0.3em;
     text-transform: lowercase;
     background: transparent;
     font-family: serif;
-    
     position: relative;
     overflow: hidden;
     border: none;
-    
-
-max-width: 50vh;
-   
+    /* max-width: 50vh; */
     width: 80%;
-
-    
     height: 100%;
     text-shadow: 0 0 8px rgba(255,255,255,0.8),
                0 0 16px rgba(0,255,255,0.4);
-
     display: inline-flex;
     justify-content: center;
     align-items: start;
 }
 
+#expander-top > button .ring {
+    bottom: 0%;
+    transform: translate(-50%, 50%);
+}
+
+#expander-bottom > button .ring {
+    top: 0%;
+    transform: translate(-50%, -50%);
+}
+
 .expander > button .ring {
-  position: absolute;
-  top: 0%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  border: 0px solid rgba(250, 250, 250, 1);
-  transform: translate(-50%, -50%);
-  animation: ripple 12s ease-out infinite;
-  filter: blur(1px);
-  pointer-events: none;
+    position: absolute;
+    /* top: 0%; */
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 0px solid rgba(250, 250, 250, 1);
+    /* transform: translate(-50%, -50%); */
+    animation: ripple 12s ease-out infinite;
+    filter: blur(1px);
+    pointer-events: none;
 }
 
 .expander > button .ring:nth-child(1) { animation-delay: 0s; }
@@ -205,7 +206,7 @@ max-width: 50vh;
 
 @keyframes ripple {
   0% {
-    width: 0;
+    width: 30%;
     height: 0;
     opacity: 0.5;
     border-width: 1px;
