@@ -391,8 +391,7 @@ async function main() {
   var matches = [];
   var sameDomain = [];
   var otherDomain = [];
-  for (var item of renderParameters.resourceLocations)
-  {
+  for (var item of renderParameters.resourceLocations){
       var parsed = parseMetaurl(item.metaURL);
       var entry = { metaurl: item.metaURL, resource: item, parsed: parsed };
       if (parsed[0] === here[0] && parsed[1] === here[1])
@@ -402,36 +401,42 @@ async function main() {
       else
           otherDomain.push(entry);
   }
-    function installExpander(id)
-    {
-        function expandListener (e)
-          {
-            resourcesdiv.className = "resourcesexpanded";
-            expander.hidden = true;
-              expandertop.hidden = true;
-          };
-        
-        var expander = document.createElement("div");
-        expandertop.className = "expander";
-        expander.id=id;
-        var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
-          
-        for (var i = 0; i < 6; i++) {
-          var ring = document.createElement("span");
-          ring.className = "ring";
-          expandBtn.appendChild(ring);
-        }
     
-        expander.addEventListener("click", expandListener);
-        center.appendChild(expander);
-    }
+  class expanderInstaller {
+       static #expanders= [];
+       static #expandListener (e) {
+                resourcesdiv.className = "resourcesexpanded";
+                for (e of this.expanders) e.hidden = true;
+        }
+       
+       static install(id,parent){
+            
+            
+            var expander = document.createElement("div");
+            expander.className = "expander";
+            expander.id=id;
+            var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
+              
+            for (var i = 0; i < 6; i++) {
+              var ring = document.createElement("span");
+              ring.className = "ring";
+              expandBtn.appendChild(ring);
+            }
+        
+            expander.addEventListener("click", this.expandListener);
+            parent.appendChild(expander);
+            this.expanders.push(expander);
+        }
+  }
+    
+
     
   var extrainfodiv = document.createElement("div");
   center.appendChild(extrainfodiv);
   extrainfodiv.className = "extrainfo";
   extrainfodiv.id = "extrainfo";
     
-  const topExpander = installExpander("expander-top");
+  expanderInstaller.install("expander-top", center);
     
   var resourcesdiv = document.createElement("div");
   center.appendChild(resourcesdiv);
@@ -443,8 +448,7 @@ async function main() {
   
 
 
-
-   const expanderBottom = installExpander("expander-bottom");
+    expanderInstaller.install("expander-bottom", center);
     
    
     
