@@ -595,8 +595,18 @@ center.appendChild(resourcesdiv);
     });
   }
 
-  resourcesdiv.addEventListener('scroll', vaporize);
-  window.addEventListener('resize', () => { buildStates(); vaporize(); });
+  let vaporScheduled = false;
+  function scheduleVapor() {
+    if (vaporScheduled) return;
+    vaporScheduled = true;
+    requestAnimationFrame(() => {
+      vaporize();
+      vaporScheduled = false;
+    });
+  }
+
+  resourcesdiv.addEventListener('scroll', scheduleVapor);
+  window.addEventListener('resize', () => { buildStates(); scheduleVapor(); });
 
   // slow but steady scroll
   resourcesdiv.addEventListener('wheel', e => {
