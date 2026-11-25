@@ -517,13 +517,22 @@ center.appendChild(resourcesdiv);
       div.getElementsByTagName("a")[0].className = "domainlink";
     }
 
+  // precomputed per-letter seeds (stable for the page load)
+  const letterSeeds = new Map();
+  function getSeed(letter, i) {
+    if (!letterSeeds.has(letter)) {
+      letterSeeds.set(letter, Math.random() * 1000);
+    }
+    return letterSeeds.get(letter);
+  }
+
   function vaporize() {
     const container = document.getElementById('resources');
     if (!container) return;
     const letters = container.querySelectorAll('.vapor-letter');
     const rect = container.getBoundingClientRect();
     const fadeZone = rect.height * 0.28;
-    const t = Date.now() / 1000;
+    const scroll = container.scrollTop;
 
     letters.forEach((letter, i) => {
       const ir = letter.getBoundingClientRect();
@@ -535,16 +544,19 @@ center.appendChild(resourcesdiv);
         dist = (center - (rect.bottom - fadeZone)) / fadeZone;
       }
       dist = Math.min(Math.max(dist, 0), 1);
-      if (dist === 0) {
-        letter.style.transform = '';
-        letter.style.filter = '';
-        letter.style.opacity = '';
+
+      if (dist < 0.01) {
+        if (letter.style.transform) {
+          letter.style.transform = '';
+          letter.style.filter = '';
+          letter.style.opacity = '';
+        }
         return;
       }
 
-      const seed = i * 0.7;
-      const wave = Math.sin(t * 3 + seed) * dist;
-      const wave2 = Math.cos(t * 2.3 + seed * 1.3) * dist;
+      const seed = getSeed(letter, i);
+      const wave = Math.sin(scroll * 0.02 + seed) * dist;
+      const wave2 = Math.cos(scroll * 0.015 + seed * 1.3) * dist;
 
       const blur = dist * 5;
       const scaleX = 1 + dist * 0.5 + wave * 0.2;
@@ -567,6 +579,7 @@ center.appendChild(resourcesdiv);
   // sluggish, water-like scroll
   let targetScroll = 0;
   let currentScroll = 0;
+  let lastVaporScroll = -1;
 
   resourcesdiv.addEventListener('wheel', e => {
     e.preventDefault();
@@ -588,17 +601,18 @@ center.appendChild(resourcesdiv);
   }, { passive: false });
 
   function smoothScroll() {
-    currentScroll += (targetScroll - currentScroll) * 0.06;
-    resourcesdiv.scrollTop = currentScroll;
+    const diff = targetScroll - currentScroll;
+    if (Math.abs(diff) > 0.1) {
+      currentScroll += diff * 0.06;
+      resourcesdiv.scrollTop = currentScroll;
+      if (Math.abs(currentScroll - lastVaporScroll) > 2) {
+        vaporize();
+        lastVaporScroll = currentScroll;
+      }
+    }
     requestAnimationFrame(smoothScroll);
   }
   smoothScroll();
-
-  function loop() {
-    vaporize();
-    requestAnimationFrame(loop);
-  }
-  loop();
 
   // wrap every letter so vaporize can target them individually
   function wrapLetters(root) {
