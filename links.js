@@ -567,6 +567,16 @@ center.appendChild(resourcesdiv);
       if (!states) return;
       const ir = letter.getBoundingClientRect();
       const center = ir.top + ir.height / 2;
+      // skip letters well inside the safe middle
+      if (center > rect.top + fadeZone + 20 && center < rect.bottom - fadeZone - 20) {
+        if (letter._lastIdx !== -1 && letter._lastIdx !== undefined) {
+          letter.style.transform = '';
+          letter.style.filter = '';
+          letter.style.opacity = '';
+          letter._lastIdx = -1;
+        }
+        return;
+      }
       let dist = 0;
       if (center < rect.top + fadeZone) {
         dist = (rect.top + fadeZone - center) / fadeZone;
@@ -595,23 +605,17 @@ center.appendChild(resourcesdiv);
     });
   }
 
-  let vaporScheduled = false;
-  function scheduleVapor() {
-    if (vaporScheduled) return;
-    vaporScheduled = true;
-    requestAnimationFrame(() => {
-      vaporize();
-      vaporScheduled = false;
-    });
-  }
+  // slow steady scroll: accumulate deltas, ease in one loop
+  let targetScroll = 0;
+  let currentScroll = 0;
+  let lastVaporTime = 0;
+  const VAPOR_INTERVAL = 32; // ms
 
-  resourcesdiv.addEventListener('scroll', scheduleVapor);
-  window.addEventListener('resize', () => { buildStates(); scheduleVapor(); });
-
-  // slow but steady scroll
   resourcesdiv.addEventListener('wheel', e => {
     e.preventDefault();
-    resourcesdiv.scrollTop += e.deltaY * 0.25;
+    targetScroll += e.deltaY * 0.35;
+    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+    targetScroll = Math.max(0, Math.min(targetScroll, max));
   }, { passive: false });
 
   let touchStartY = 0;
@@ -622,9 +626,28 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('touchmove', e => {
     e.preventDefault();
     const dy = touchStartY - e.touches[0].clientY;
-    resourcesdiv.scrollTop += dy * 0.4;
+    targetScroll += dy * 0.5;
+    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+    targetScroll = Math.max(0, Math.min(targetScroll, max));
     touchStartY = e.touches[0].clientY;
   }, { passive: false });
+
+  function scrollLoop() {
+    const diff = targetScroll - currentScroll;
+    if (Math.abs(diff) > 0.5) {
+      currentScroll += diff * 0.12;
+      resourcesdiv.scrollTop = currentScroll;
+      const now = performance.now();
+      if (now - lastVaporTime > VAPOR_INTERVAL) {
+        vaporize();
+        lastVaporTime = now;
+      }
+    }
+    requestAnimationFrame(scrollLoop);
+  }
+  scrollLoop();
+
+  window.addEventListener('resize', () => { buildStates(); vaporize(); });
 
   // wrap every letter so vaporize can target them individually
   // preserve word boundaries so wrapping stays natural
