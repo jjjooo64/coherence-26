@@ -49,10 +49,11 @@ body{
 
 a {
     font-style: normal;
+    color:black;
 }
 
 .metaurl{
-  font-size:small;
+  font-size:medium;
 }
 
 
@@ -451,6 +452,7 @@ async function main() {
   }
     
 class expanderInstaller {
+    /*
     static #expanders = [];
     static #expandListener(e) {
         resourcesdiv.className = "resourcesexpanded";
@@ -458,18 +460,24 @@ class expanderInstaller {
         // hide the shared rings too
         document.querySelectorAll('#list-block > .ring').forEach(r => r.remove());
     }
-
+    */
+    //dont want interactive expanders as of right now
     static install(id, parent) {
         var expander = document.createElement("div");
         expander.className = "expander";
         expander.id = id;
+        parent.appendChild(expander);
+
+        return; 
+        /*
         var expandBtn = createElementWithTag_Text_andAppendTo_("button", "expand list", expander);
         expander.addEventListener("click", (e) => this.#expandListener(e));
-        parent.appendChild(expander);
+        
         this.#expanders.push(expander);
         return expander;
+        */
     }
-}
+} 
     
 
     
