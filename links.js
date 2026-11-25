@@ -406,7 +406,7 @@ async function main() {
        static #expanders= [];
        static #expandListener (e) {
                 resourcesdiv.className = "resourcesexpanded";
-                for (e of this.expanders) e.hidden = true;
+                for (e of this.#expanders) e.hidden = true;
         }
        
        static install(id,parent){
@@ -423,9 +423,9 @@ async function main() {
               expandBtn.appendChild(ring);
             }
         
-            expander.addEventListener("click", this.expandListener);
+            expander.addEventListener("click", this.#expandListener);
             parent.appendChild(expander);
-            this.expanders.push(expander);
+            this.#expanders.push(expander);
         }
   }
     
