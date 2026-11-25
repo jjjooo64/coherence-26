@@ -562,9 +562,11 @@ resourcesdiv.appendChild(resourcesInner);
 
   function buildOffsets() {
     letterOffsets.clear();
+    const base = resourcesInner.getBoundingClientRect().top;
     const letters = resourcesInner.querySelectorAll('.vapor-letter');
     letters.forEach(letter => {
-      letterOffsets.set(letter, letter.offsetTop + letter.offsetHeight / 2);
+      const r = letter.getBoundingClientRect();
+      letterOffsets.set(letter, (r.top - base) + r.height / 2);
     });
   }
 
@@ -605,13 +607,15 @@ resourcesdiv.appendChild(resourcesInner);
     });
   }
 
-  // physics-limited scroll (transform-based)
+  // multiplicative accel scroll
   let currentY = 0;
   let velocity = 0;
+  let accel = 1;          // multiplier applied to velocity each frame
   let targetY = 0;
-  window.MAX_TARGET_DIST = 180;
-  window.MAX_ACCEL = 1.2;
-  window.MAX_VEL = 8;
+  window.MAX_ACCEL = 1.08;       // max |accel| as multiplier (e.g. 1.08 or 0.92)
+  window.MAX_ACCEL_CHANGE = 0.02; // max change in accel multiplier per frame
+  window.MAX_VEL = 12;
+  window.STOP_TIME_OK = 300;     // ms; allow reverse only if we can stop faster than this
   let lastVaporTime = 0;
   const VAPOR_INTERVAL = 50;
 
@@ -619,19 +623,65 @@ resourcesdiv.appendChild(resourcesInner);
     return Math.max(0, resourcesInner.scrollHeight - resourcesdiv.clientHeight);
   }
 
+  // closest point we can stop at given current vel and accel limits
+  function closestStopPoint() {
+    if (Math.abs(velocity) < 0.2) return currentY;
+    const minDecel = 1 / window.MAX_ACCEL; // strongest slowdown multiplier
+    let v = velocity;
+    let y = currentY;
+    let a = accel;
+    for (let i = 0; i < 600; i++) {
+      // move accel toward minDecel, limited by MAX_ACCEL_CHANGE
+      const desired = v > 0 ? minDecel : (1 / minDecel);
+      let da = desired - a;
+      da = Math.max(-window.MAX_ACCEL_CHANGE, Math.min(window.MAX_ACCEL_CHANGE, da));
+      a += da;
+      a = Math.max(minDecel, Math.min(window.MAX_ACCEL, a));
+      v *= a;
+      if (Math.abs(v) > window.MAX_VEL) v = Math.sign(v) * window.MAX_VEL;
+      y += v;
+      if (Math.abs(v) < 0.2) break;
+    }
+    return y;
+  }
+
+  function timeToStop() {
+    if (Math.abs(velocity) < 0.2) return 0;
+    const minDecel = 1 / window.MAX_ACCEL;
+    let v = velocity;
+    let a = accel;
+    let frames = 0;
+    for (let i = 0; i < 600; i++) {
+      const desired = v > 0 ? minDecel : (1 / minDecel);
+      let da = desired - a;
+      da = Math.max(-window.MAX_ACCEL_CHANGE, Math.min(window.MAX_ACCEL_CHANGE, da));
+      a += da;
+      a = Math.max(minDecel, Math.min(window.MAX_ACCEL, a));
+      v *= a;
+      frames++;
+      if (Math.abs(v) < 0.2) break;
+    }
+    return frames * 16.67;
+  }
+
   function clampTarget(proposed) {
     const max = maxScroll();
     proposed = Math.max(0, Math.min(proposed, max));
-    const lead = proposed - currentY;
-    if (Math.abs(lead) > window.MAX_TARGET_DIST) {
-      return currentY + Math.sign(lead) * window.MAX_TARGET_DIST;
+    const stopAt = closestStopPoint();
+    const canReverse = timeToStop() < window.STOP_TIME_OK;
+
+    if (velocity > 0.2) {
+      // moving down; cannot target above stop point unless reverse allowed
+      if (proposed < stopAt && !canReverse) proposed = stopAt;
+    } else if (velocity < -0.2) {
+      if (proposed > stopAt && !canReverse) proposed = stopAt;
     }
     return proposed;
   }
 
   resourcesdiv.addEventListener('wheel', e => {
     e.preventDefault();
-    targetY = clampTarget(targetY + e.deltaY * 0.5);
+    targetY = clampTarget(targetY + e.deltaY * 0.6);
   }, { passive: false });
 
   let touchStartY = 0;
@@ -642,27 +692,42 @@ resourcesdiv.appendChild(resourcesInner);
   resourcesdiv.addEventListener('touchmove', e => {
     e.preventDefault();
     const dy = touchStartY - e.touches[0].clientY;
-    targetY = clampTarget(targetY + dy * 0.6);
+    targetY = clampTarget(targetY + dy * 0.7);
     touchStartY = e.touches[0].clientY;
   }, { passive: false });
 
   function scrollLoop() {
     const dist = targetY - currentY;
     const absDist = Math.abs(dist);
-    const maxA = window.MAX_ACCEL || 1.2;
-    const maxV = window.MAX_VEL || 8;
+    const maxA = window.MAX_ACCEL || 1.08;
+    const maxAC = window.MAX_ACCEL_CHANGE || 0.02;
+    const maxV = window.MAX_VEL || 12;
+    const minA = 1 / maxA;
 
-    if (absDist > 0.5 || Math.abs(velocity) > 0.15) {
-      const maxStopSpeed = Math.min(maxV, Math.sqrt(2 * maxA * Math.max(absDist, 0.01)));
-      let desiredVel = Math.sign(dist) * Math.min(absDist * 0.2, maxStopSpeed);
-
-      let accel = desiredVel - velocity;
-      accel = Math.max(-maxA, Math.min(maxA, accel));
-      velocity += accel;
-
-      if (Math.abs(velocity) > maxStopSpeed) {
-        velocity = Math.sign(velocity) * maxStopSpeed;
+    if (absDist > 0.5 || Math.abs(velocity) > 0.2) {
+      // desired accel multiplier: >1 to speed up in direction of target, <1 to slow
+      const wantSpeed = Math.sign(dist) * Math.min(maxV, absDist * 0.15);
+      let desiredAccel = 1;
+      if (Math.abs(velocity) > 0.2) {
+        if (Math.sign(wantSpeed) === Math.sign(velocity) && Math.abs(wantSpeed) > Math.abs(velocity)) {
+          desiredAccel = maxA;
+        } else {
+          desiredAccel = minA;
+        }
+      } else {
+        desiredAccel = maxA;
+        if (Math.abs(velocity) < 0.2 && Math.abs(dist) > 0.5) {
+          velocity = Math.sign(dist) * 0.3;
+        }
       }
+
+      let da = desiredAccel - accel;
+      da = Math.max(-maxAC, Math.min(maxAC, da));
+      accel += da;
+      accel = Math.max(minA, Math.min(maxA, accel));
+
+      velocity *= accel;
+      if (Math.abs(velocity) > maxV) velocity = Math.sign(velocity) * maxV;
 
       currentY += velocity;
       const max = maxScroll();
@@ -676,6 +741,7 @@ resourcesdiv.appendChild(resourcesInner);
       }
     } else {
       velocity = 0;
+      accel = 1;
       currentY = targetY;
       resourcesInner.style.transform = `translateY(${-currentY}px)`;
     }
