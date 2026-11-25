@@ -126,7 +126,7 @@ a {
     border-style: outset;
     border-width: thick;
     padding: 4px;
-    width:fit-content
+    width:fit-content;
     max-width: 90%;
     margin-left: auto;
     margin-right: auto;
