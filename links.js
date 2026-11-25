@@ -126,6 +126,7 @@ a {
     border-style: outset;
     border-width: thick;
     padding: 4px;
+    width:fit-content
     max-width: 90%;
     margin-left: auto;
     margin-right: auto;
@@ -316,7 +317,7 @@ a:active{
 }
 
 .resourcelisting0, .resourcelisting1{
-  margin: 6vh;
+  margin-bottom: 8vh;
   font-size: x-large;
 }
 `;
