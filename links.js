@@ -144,13 +144,19 @@ a {
   font-style: italic;
 }
 
+:root {
+  --resourcesHeight: 21vh;
+  --expanderHeight: 9vh;
+  --resourcesPlusExpandersHeight: calc( (2 * var(--expanderHeight) + var(--resourcesHeight)) );
+  --resourcesHeightRatio: calc(var(--resourcesHeight) / var(--resourcesPlusExpandersHeight));
+}
 
 .resources{
-  height: 54%;
+  height: var(--resourcesHeight);
 }
 
  .expander{
-  height: 9%;
+  height: var(--expanderHeight);
 }
 
 .expander > button {
@@ -190,6 +196,7 @@ a {
 
 #list-block {
   position: relative;
+  width:100%;
 }
 
 #list-block > .ring {
@@ -220,17 +227,17 @@ a {
 
 
 
-#list-block > button .ring:nth-child(1) { animation-delay: 0s; }
-#list-block > button .ring:nth-child(2) { animation-delay: 2s; }
-#list-block > button .ring:nth-child(3) { animation-delay: 4s; }
-#list-block > button .ring:nth-child(4) { animation-delay: 6s; }
-#list-block > button .ring:nth-child(5) { animation-delay: 8s; }
-#list-block > button .ring:nth-child(6) { animation-delay: 10s; }
+#list-block >  .ring:nth-of-type(1) { animation-delay: 0s; }
+#list-block >  .ring:nth-of-type(2) { animation-delay: 2s; }
+#list-block >  .ring:nth-of-type(3) { animation-delay: 4s; }
+#list-block >  .ring:nth-of-type(4) { animation-delay: 6s; }
+#list-block >  .ring:nth-of-type(5) { animation-delay: 8s; }
+#list-block >  .ring:nth-of-type(6) { animation-delay: 10s; }
 
 @keyframes ripple {
   0% {
-    width: 54%;
-    height: 54%;
+    width: calc( var(--resourcesHeightRatio) * 100% );
+    height: var(--resourcesHeight);
     opacity: 0.5;
     border-width: 1px;
   }
@@ -245,7 +252,7 @@ a {
   }
   100% {
     width: 100%;
-    height: 100%;
+    height: var(--resourcesPlusExpandersHeight);
     opacity: 0;
     border-width: 1px;
   }
