@@ -139,15 +139,15 @@ a {
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 12%,
-    black 88%,
+    black 18%,
+    black 82%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 12%,
-    black 88%,
+    black 18%,
+    black 82%,
     transparent 100%
   );
 }
@@ -512,6 +512,38 @@ center.appendChild(resourcesdiv);
       div.className = "domainlinkwrapper";
       div.getElementsByTagName("a")[0].className = "domainlink";
     }
+
+  function vaporize() {
+    const container = document.getElementById('resources');
+    if (!container) return;
+    const items = container.querySelectorAll('.resourcelisting0, .resourcelisting1');
+    const rect = container.getBoundingClientRect();
+    const fadeZone = rect.height * 0.22;
+
+    items.forEach(item => {
+      const ir = item.getBoundingClientRect();
+      const center = ir.top + ir.height / 2;
+      let dist = 0;
+      if (center < rect.top + fadeZone) {
+        dist = (rect.top + fadeZone - center) / fadeZone;
+      } else if (center > rect.bottom - fadeZone) {
+        dist = (center - (rect.bottom - fadeZone)) / fadeZone;
+      }
+      dist = Math.min(Math.max(dist, 0), 1);
+
+      const blur = dist * 6;
+      const scale = 1 + dist * 0.35;
+      const opacity = 1 - dist * 0.85;
+
+      item.style.filter = `blur(${blur}px)`;
+      item.style.transform = `scale(${scale})`;
+      item.style.opacity = opacity;
+    });
+  }
+
+  resourcesdiv.addEventListener('scroll', vaporize);
+  window.addEventListener('resize', vaporize);
+  vaporize();
 }
 
 main();
