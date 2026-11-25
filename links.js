@@ -598,45 +598,8 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('scroll', vaporize);
   window.addEventListener('resize', () => { buildStates(); vaporize(); });
 
-  // sluggish, water-like scroll
-  let targetScroll = 0;
-  let currentScroll = 0;
-  let lastVaporScroll = -1;
-
-  resourcesdiv.addEventListener('wheel', e => {
-    e.preventDefault();
-    targetScroll += e.deltaY * 0.3;
-    targetScroll = Math.max(0, Math.min(targetScroll, resourcesdiv.scrollHeight - resourcesdiv.clientHeight));
-  }, { passive: false });
-
-  let touchStartY = 0;
-  resourcesdiv.addEventListener('touchstart', e => {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-
-  resourcesdiv.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const dy = touchStartY - e.touches[0].clientY;
-    targetScroll += dy * 0.5;
-    targetScroll = Math.max(0, Math.min(targetScroll, resourcesdiv.scrollHeight - resourcesdiv.clientHeight));
-    touchStartY = e.touches[0].clientY;
-  }, { passive: false });
-
-  function smoothScroll() {
-    const diff = targetScroll - currentScroll;
-    if (Math.abs(diff) > 0.1) {
-      currentScroll += diff * 0.06;
-      resourcesdiv.scrollTop = currentScroll;
-      if (Math.abs(currentScroll - lastVaporScroll) > 1) {
-        vaporize();
-        lastVaporScroll = currentScroll;
-      }
-    }
-    requestAnimationFrame(smoothScroll);
-  }
-  smoothScroll();
-
   // wrap every letter so vaporize can target them individually
+  // preserve word boundaries so wrapping stays natural
   function wrapLetters(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
     const texts = [];
@@ -645,16 +608,22 @@ center.appendChild(resourcesdiv);
     texts.forEach(textNode => {
       if (!textNode.textContent.trim()) return;
       const frag = document.createDocumentFragment();
-      for (const ch of textNode.textContent) {
-        if (ch === ' ') {
-          frag.appendChild(document.createTextNode(' '));
+      const parts = textNode.textContent.split(/(\s+)/);
+      parts.forEach(part => {
+        if (/^\s+$/.test(part)) {
+          frag.appendChild(document.createTextNode(part));
         } else {
-          const span = document.createElement('span');
-          span.className = 'vapor-letter';
-          span.textContent = ch;
-          frag.appendChild(span);
+          const word = document.createElement('span');
+          word.style.whiteSpace = 'nowrap';
+          for (const ch of part) {
+            const span = document.createElement('span');
+            span.className = 'vapor-letter';
+            span.textContent = ch;
+            word.appendChild(span);
+          }
+          frag.appendChild(word);
         }
-      }
+      });
       textNode.parentNode.replaceChild(frag, textNode);
     });
   }
