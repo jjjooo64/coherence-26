@@ -647,12 +647,12 @@ center.appendChild(resourcesdiv);
 
     if (absDist > 0.5 || Math.abs(velocity) > 0.1) {
       // max speed we can still stop from, given remaining distance
-      const maxStopSpeed = Math.sqrt(2 * MAX_ACCEL * absDist);
+      const maxStopSpeed = Math.sqrt(2 * window.MAX_ACCEL * absDist);
       let desiredVel = Math.sign(dist) * Math.min(absDist * 0.15, maxStopSpeed);
 
       // if target is on the other side of velocity, we must reverse
       let accel = desiredVel - velocity;
-      accel = Math.max(-MAX_ACCEL, Math.min(MAX_ACCEL, accel));
+      accel = Math.max(-window.MAX_ACCEL, Math.min(window.MAX_ACCEL, accel));
 
       velocity += accel;
       // hard cap so we never outrun stopping distance
