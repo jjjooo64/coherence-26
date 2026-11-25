@@ -235,6 +235,7 @@ a:active{
 
 .resourcelisting0, .resourcelisting1{
   margin-bottom: 8vh;
+  margin-top:8vh;
   font-size: x-large;
 }
 `;
@@ -519,8 +520,9 @@ center.appendChild(resourcesdiv);
     const letters = container.querySelectorAll('.vapor-letter');
     const rect = container.getBoundingClientRect();
     const fadeZone = rect.height * 0.28;
+    const t = Date.now() / 1000;
 
-    letters.forEach(letter => {
+    letters.forEach((letter, i) => {
       const ir = letter.getBoundingClientRect();
       const center = ir.top + ir.height / 2;
       let dist = 0;
@@ -530,14 +532,27 @@ center.appendChild(resourcesdiv);
         dist = (center - (rect.bottom - fadeZone)) / fadeZone;
       }
       dist = Math.min(Math.max(dist, 0), 1);
+      if (dist === 0) {
+        letter.style.transform = '';
+        letter.style.filter = '';
+        letter.style.opacity = '';
+        return;
+      }
+
+      const seed = i * 0.7;
+      const wave = Math.sin(t * 3 + seed) * dist;
+      const wave2 = Math.cos(t * 2.3 + seed * 1.3) * dist;
 
       const blur = dist * 5;
-      const scale = 1 + dist * 0.6;
+      const scaleX = 1 + dist * 0.5 + wave * 0.2;
+      const scaleY = 1 + dist * 0.3 + wave2 * 0.15;
+      const skew = wave * 12;
+      const dx = wave2 * 8 * dist;
+      const dy = wave * 6 * dist;
       const opacity = 1 - dist * 0.9;
-      const spread = dist * 2;
 
       letter.style.filter = `blur(${blur}px)`;
-      letter.style.transform = `scale(${scale}) translateY(${(Math.random() - 0.5) * spread}px)`;
+      letter.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY}) skewX(${skew}deg)`;
       letter.style.opacity = opacity;
       letter.style.display = 'inline-block';
     });
@@ -545,6 +560,12 @@ center.appendChild(resourcesdiv);
 
   resourcesdiv.addEventListener('scroll', vaporize);
   window.addEventListener('resize', vaporize);
+
+  function loop() {
+    vaporize();
+    requestAnimationFrame(loop);
+  }
+  loop();
 
   // wrap every letter so vaporize can target them individually
   function wrapLetters(root) {
