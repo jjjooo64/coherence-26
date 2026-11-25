@@ -564,6 +564,36 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('scroll', vaporize);
   window.addEventListener('resize', vaporize);
 
+  // sluggish, water-like scroll
+  let targetScroll = 0;
+  let currentScroll = 0;
+
+  resourcesdiv.addEventListener('wheel', e => {
+    e.preventDefault();
+    targetScroll += e.deltaY * 0.3;
+    targetScroll = Math.max(0, Math.min(targetScroll, resourcesdiv.scrollHeight - resourcesdiv.clientHeight));
+  }, { passive: false });
+
+  let touchStartY = 0;
+  resourcesdiv.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  resourcesdiv.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const dy = touchStartY - e.touches[0].clientY;
+    targetScroll += dy * 0.5;
+    targetScroll = Math.max(0, Math.min(targetScroll, resourcesdiv.scrollHeight - resourcesdiv.clientHeight));
+    touchStartY = e.touches[0].clientY;
+  }, { passive: false });
+
+  function smoothScroll() {
+    currentScroll += (targetScroll - currentScroll) * 0.06;
+    resourcesdiv.scrollTop = currentScroll;
+    requestAnimationFrame(smoothScroll);
+  }
+  smoothScroll();
+
   function loop() {
     vaporize();
     requestAnimationFrame(loop);
