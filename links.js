@@ -516,12 +516,12 @@ center.appendChild(resourcesdiv);
   function vaporize() {
     const container = document.getElementById('resources');
     if (!container) return;
-    const items = container.querySelectorAll('.resourcelisting0, .resourcelisting1');
+    const letters = container.querySelectorAll('.vapor-letter');
     const rect = container.getBoundingClientRect();
-    const fadeZone = rect.height * 0.22;
+    const fadeZone = rect.height * 0.28;
 
-    items.forEach(item => {
-      const ir = item.getBoundingClientRect();
+    letters.forEach(letter => {
+      const ir = letter.getBoundingClientRect();
       const center = ir.top + ir.height / 2;
       let dist = 0;
       if (center < rect.top + fadeZone) {
@@ -531,18 +531,44 @@ center.appendChild(resourcesdiv);
       }
       dist = Math.min(Math.max(dist, 0), 1);
 
-      const blur = dist * 6;
-      const scale = 1 + dist * 0.35;
-      const opacity = 1 - dist * 0.85;
+      const blur = dist * 5;
+      const scale = 1 + dist * 0.6;
+      const opacity = 1 - dist * 0.9;
+      const spread = dist * 2;
 
-      item.style.filter = `blur(${blur}px)`;
-      item.style.transform = `scale(${scale})`;
-      item.style.opacity = opacity;
+      letter.style.filter = `blur(${blur}px)`;
+      letter.style.transform = `scale(${scale}) translateY(${(Math.random() - 0.5) * spread}px)`;
+      letter.style.opacity = opacity;
+      letter.style.display = 'inline-block';
     });
   }
 
   resourcesdiv.addEventListener('scroll', vaporize);
   window.addEventListener('resize', vaporize);
+
+  // wrap every letter so vaporize can target them individually
+  function wrapLetters(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const texts = [];
+    let node;
+    while (node = walker.nextNode()) texts.push(node);
+    texts.forEach(textNode => {
+      if (!textNode.textContent.trim()) return;
+      const frag = document.createDocumentFragment();
+      for (const ch of textNode.textContent) {
+        if (ch === ' ') {
+          frag.appendChild(document.createTextNode(' '));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'vapor-letter';
+          span.textContent = ch;
+          frag.appendChild(span);
+        }
+      }
+      textNode.parentNode.replaceChild(frag, textNode);
+    });
+  }
+  wrapLetters(resourcesdiv);
   vaporize();
 }
 
