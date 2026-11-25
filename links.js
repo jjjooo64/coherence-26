@@ -144,13 +144,20 @@ a {
   --resourcesHeightRatio: calc(var(--resourcesHeight) / var(--resourcesPlusExpandersHeight));
 }
 
-.resources{
-  height: var(--resourcesHeight);
-      overflow: scroll;
+.resourcesexpanded {
+
+}
+#resources {
       background-color: white;
     color: black;
     font-style: normal;
     box-shadow: 0 0 5px 9px rgba(255,255,255,1);
+}
+
+.resources{
+  height: var(--resourcesHeight);
+      overflow: scroll;
+
 
 
 
@@ -161,11 +168,11 @@ a {
 
 }
 
-    .resources::-webkit-scrollbar {
+.resources::-webkit-scrollbar {
   display: none;
 }
 
- .expander{
+.expander{
   height: var(--expanderHeight);
 }
 
@@ -282,10 +289,10 @@ a:visited{
 }
 a:hover{
 
-text-decoration: underline;
+  text-decoration: none;
 }
 a:active{
-text-decoration: underline;
+  text-decoration: none;
 }
 
 .domainlink:link{
@@ -307,8 +314,7 @@ text-decoration: underline;
 }
 
 .resourcelisting0, .resourcelisting1{
-  border-style: none none solid none;
-  border-color: #bbbbbb;
+  margin: 6vh;
   font-size: x-large;
 }
 `;
