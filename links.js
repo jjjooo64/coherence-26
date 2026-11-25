@@ -158,9 +158,14 @@ a {
 
 .resourcelisting0,
 .resourcelisting1 {
-  margin: 3.5em 0;
+  margin-top: 12vh;
   font-size: 2.4vh;
   border: none;
+}
+
+.resourcelisting0:last-child,
+.resourcelisting1:last-child {
+  margin-bottom: 12vh;
 }
 
 .metaurl {
@@ -234,8 +239,6 @@ a:active{
 }
 
 .resourcelisting0, .resourcelisting1{
-  margin-bottom: 8vh;
-  margin-top:8vh;
   font-size: x-large;
 }
 `;
