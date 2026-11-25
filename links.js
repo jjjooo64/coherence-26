@@ -432,7 +432,7 @@ async function main() {
               expandBtn.appendChild(ring);
             }
         
-            expander.addEventListener("click", this.#expandListener);
+            expander.addEventListener("click", (e) => this.#expandListener(e) );
             parent.appendChild(expander);
             this.#expanders.push(expander);
         }
