@@ -605,17 +605,28 @@ center.appendChild(resourcesdiv);
     });
   }
 
-  // slow steady scroll: accumulate deltas, ease in one loop
-  let targetScroll = 0;
-  let currentScroll = 0;
+  // physics-limited scroll
+  let currentY = 0;
+  let velocity = 0;
+  let targetY = 0;
+  const MAX_TARGET_DIST = 120;   // px; events beyond this are dropped
+  const MAX_ACCEL = 0.8;         // px per frame²
   let lastVaporTime = 0;
-  const VAPOR_INTERVAL = 32; // ms
+  const VAPOR_INTERVAL = 32;
+
+  function clampTarget(proposed) {
+    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+    proposed = Math.max(0, Math.min(proposed, max));
+    const lead = proposed - currentY;
+    if (Math.abs(lead) > MAX_TARGET_DIST) {
+      return currentY + Math.sign(lead) * MAX_TARGET_DIST;
+    }
+    return proposed;
+  }
 
   resourcesdiv.addEventListener('wheel', e => {
     e.preventDefault();
-    targetScroll += e.deltaY * 0.35;
-    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
-    targetScroll = Math.max(0, Math.min(targetScroll, max));
+    targetY = clampTarget(targetY + e.deltaY * 0.4);
   }, { passive: false });
 
   let touchStartY = 0;
@@ -626,22 +637,43 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('touchmove', e => {
     e.preventDefault();
     const dy = touchStartY - e.touches[0].clientY;
-    targetScroll += dy * 0.5;
-    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
-    targetScroll = Math.max(0, Math.min(targetScroll, max));
+    targetY = clampTarget(targetY + dy * 0.5);
     touchStartY = e.touches[0].clientY;
   }, { passive: false });
 
   function scrollLoop() {
-    const diff = targetScroll - currentScroll;
-    if (Math.abs(diff) > 0.5) {
-      currentScroll += diff * 0.12;
-      resourcesdiv.scrollTop = currentScroll;
+    const dist = targetY - currentY;
+    const absDist = Math.abs(dist);
+
+    if (absDist > 0.5 || Math.abs(velocity) > 0.1) {
+      // max speed we can still stop from, given remaining distance
+      const maxStopSpeed = Math.sqrt(2 * MAX_ACCEL * absDist);
+      let desiredVel = Math.sign(dist) * Math.min(absDist * 0.15, maxStopSpeed);
+
+      // if target is on the other side of velocity, we must reverse
+      let accel = desiredVel - velocity;
+      accel = Math.max(-MAX_ACCEL, Math.min(MAX_ACCEL, accel));
+
+      velocity += accel;
+      // hard cap so we never outrun stopping distance
+      if (Math.abs(velocity) > maxStopSpeed) {
+        velocity = Math.sign(velocity) * maxStopSpeed;
+      }
+
+      currentY += velocity;
+      const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+      currentY = Math.max(0, Math.min(currentY, max));
+      resourcesdiv.scrollTop = currentY;
+
       const now = performance.now();
       if (now - lastVaporTime > VAPOR_INTERVAL) {
         vaporize();
         lastVaporTime = now;
       }
+    } else {
+      velocity = 0;
+      currentY = targetY;
+      resourcesdiv.scrollTop = currentY;
     }
     requestAnimationFrame(scrollLoop);
   }
