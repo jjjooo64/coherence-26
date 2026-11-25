@@ -609,8 +609,8 @@ center.appendChild(resourcesdiv);
   let currentY = 0;
   let velocity = 0;
   let targetY = 0;
-  const MAX_TARGET_DIST = 120;   // px; events beyond this are dropped
-  const MAX_ACCEL = 0.8;         // px per frame²
+  window.MAX_TARGET_DIST = 180;
+  window.MAX_ACCEL = 1.2;
   let lastVaporTime = 0;
   const VAPOR_INTERVAL = 32;
 
@@ -618,15 +618,15 @@ center.appendChild(resourcesdiv);
     const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
     proposed = Math.max(0, Math.min(proposed, max));
     const lead = proposed - currentY;
-    if (Math.abs(lead) > MAX_TARGET_DIST) {
-      return currentY + Math.sign(lead) * MAX_TARGET_DIST;
+    if (Math.abs(lead) > window.MAX_TARGET_DIST) {
+      return currentY + Math.sign(lead) * window.MAX_TARGET_DIST;
     }
     return proposed;
   }
 
   resourcesdiv.addEventListener('wheel', e => {
     e.preventDefault();
-    targetY = clampTarget(targetY + e.deltaY * 0.4);
+    targetY = clampTarget(targetY + e.deltaY * 0.5);
   }, { passive: false });
 
   let touchStartY = 0;
@@ -637,25 +637,23 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('touchmove', e => {
     e.preventDefault();
     const dy = touchStartY - e.touches[0].clientY;
-    targetY = clampTarget(targetY + dy * 0.5);
+    targetY = clampTarget(targetY + dy * 0.6);
     touchStartY = e.touches[0].clientY;
   }, { passive: false });
 
   function scrollLoop() {
     const dist = targetY - currentY;
     const absDist = Math.abs(dist);
+    const maxA = window.MAX_ACCEL || 1.2;
 
-    if (absDist > 0.5 || Math.abs(velocity) > 0.1) {
-      // max speed we can still stop from, given remaining distance
-      const maxStopSpeed = Math.sqrt(2 * window.MAX_ACCEL * absDist);
-      let desiredVel = Math.sign(dist) * Math.min(absDist * 0.15, maxStopSpeed);
+    if (absDist > 0.5 || Math.abs(velocity) > 0.15) {
+      const maxStopSpeed = Math.sqrt(2 * maxA * Math.max(absDist, 0.01));
+      let desiredVel = Math.sign(dist) * Math.min(absDist * 0.2, maxStopSpeed);
 
-      // if target is on the other side of velocity, we must reverse
       let accel = desiredVel - velocity;
-      accel = Math.max(-window.MAX_ACCEL, Math.min(window.MAX_ACCEL, accel));
-
+      accel = Math.max(-maxA, Math.min(maxA, accel));
       velocity += accel;
-      // hard cap so we never outrun stopping distance
+
       if (Math.abs(velocity) > maxStopSpeed) {
         velocity = Math.sign(velocity) * maxStopSpeed;
       }
