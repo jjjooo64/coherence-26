@@ -598,6 +598,24 @@ center.appendChild(resourcesdiv);
   resourcesdiv.addEventListener('scroll', vaporize);
   window.addEventListener('resize', () => { buildStates(); vaporize(); });
 
+  // slow but steady scroll
+  resourcesdiv.addEventListener('wheel', e => {
+    e.preventDefault();
+    resourcesdiv.scrollTop += e.deltaY * 0.25;
+  }, { passive: false });
+
+  let touchStartY = 0;
+  resourcesdiv.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  resourcesdiv.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const dy = touchStartY - e.touches[0].clientY;
+    resourcesdiv.scrollTop += dy * 0.4;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: false });
+
   // wrap every letter so vaporize can target them individually
   // preserve word boundaries so wrapping stays natural
   function wrapLetters(root) {
