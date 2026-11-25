@@ -123,7 +123,7 @@ a {
 
 
 #resources {
-  height: 100%;
+  height: 45vh;
   overflow-y: scroll;
   overflow-x: hidden;
   background: transparent;
@@ -377,7 +377,7 @@ class expanderInstaller {
         resourcesdiv.className = "resourcesexpanded";
         for (const exp of this.#expanders) exp.hidden = true;
         // hide the shared rings too
-        document.querySelectorAll('#list-block > .ring').forEach(r => r.remove());
+        // document.querySelectorAll('#list-block > .ring').forEach(r => r.remove());
     }
     */
     //dont want interactive expanders as of right now
@@ -408,30 +408,13 @@ class expanderInstaller {
 
 
 
-var listBlock = document.createElement("div");
-listBlock.id = "list-block";
-center.appendChild(listBlock);
-
 var resourcesdiv = document.createElement("div");
 resourcesdiv.className = "resources";
 resourcesdiv.id = "resources";
-listBlock.appendChild(resourcesdiv);
-
-    var listBlock = document.createElement("div");
-listBlock.id = "list-block";
-center.appendChild(listBlock);
+center.appendChild(resourcesdiv);
 
 
-// single set of rings, centered on the whole block
-    /*
-for (var i = 0; i < 6; i++) {
-    var ring = document.createElement("span");
-    ring.className = "ring";
-    listBlock.appendChild(ring);
-}
-
-
-    */
+// rings removed
 
 
     
