@@ -146,11 +146,11 @@ a {
 
 
 .resources{
-  height: 21vh;
+  height: 54%;
 }
 
  .expander{
-  height: 9vh;
+  height: 9%;
 }
 
 .expander > button {
@@ -220,17 +220,17 @@ a {
 
 
 
-.expander > button .ring:nth-child(1) { animation-delay: 0s; }
-.expander > button .ring:nth-child(2) { animation-delay: 2s; }
-.expander > button .ring:nth-child(3) { animation-delay: 4s; }
-.expander > button .ring:nth-child(4) { animation-delay: 6s; }
-.expander > button .ring:nth-child(5) { animation-delay: 8s; }
-.expander > button .ring:nth-child(6) { animation-delay: 10s; }
+#list-block > button .ring:nth-child(1) { animation-delay: 0s; }
+#list-block > button .ring:nth-child(2) { animation-delay: 2s; }
+#list-block > button .ring:nth-child(3) { animation-delay: 4s; }
+#list-block > button .ring:nth-child(4) { animation-delay: 6s; }
+#list-block > button .ring:nth-child(5) { animation-delay: 8s; }
+#list-block > button .ring:nth-child(6) { animation-delay: 10s; }
 
 @keyframes ripple {
   0% {
-    width: 30%;
-    height: 0;
+    width: 54%;
+    height: 54%;
     opacity: 0.5;
     border-width: 1px;
   }
