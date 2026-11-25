@@ -122,48 +122,20 @@ a {
 
 
 
-.resourcelinkwrapping{
-    border-style: outset;
-    border-width: thick;
-    padding: 4px;
-    width:fit-content;
-    max-width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    overflow-wrap: break-word;
-    font-size: large;
-}
-
-.description{
-  font-style: italic;
-}
-
-:root {
-  --listHeight: 42vh;
-}
-
-#list-block {
-  position: relative;
-  width: 88%;
-  margin: 2em auto;
-  height: var(--listHeight);
-}
-
 #resources {
   height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
   background: transparent;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.65);
   font-family: serif;
-  font-style: italic;
-  letter-spacing: 0.08em;
-  text-shadow: 0 0 8px rgba(255,255,255,0.7),
-               0 0 18px rgba(0,255,255,0.35);
+  font-style: normal;
+  letter-spacing: 0.3em;
+  text-transform: lowercase;
+  text-shadow: 0 0 8px rgba(255,255,255,0.8),
+               0 0 16px rgba(0,255,255,0.4);
   -ms-overflow-style: none;
   scrollbar-width: none;
-  /* mist at top and bottom */
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -186,15 +158,16 @@ a {
 
 .resourcelisting0,
 .resourcelisting1 {
-  margin: 1.8em 0;
-  font-size: x-large;
+  margin: 3.5em 0;
+  font-size: 2.4vh;
   border: none;
 }
 
 .metaurl {
-  font-size: 0.85em;
-  opacity: 0.7;
-  letter-spacing: 0.15em;
+  font-size: 0.75em;
+  letter-spacing: 0.35em;
+  opacity: 0.8;
+  margin-bottom: 0.6em;
 }
 
 .resourcelinkwrapping {
@@ -202,23 +175,24 @@ a {
   background: transparent;
   width: auto;
   max-width: 95%;
-  margin: 0.4em auto;
+  margin: 0.8em auto;
   padding: 0;
+  letter-spacing: 0.25em;
 }
 
-.resourcelinkwrapping a,
-.resourcelinkwrapping {
-  color: rgba(200,255,255,0.9);
-  text-shadow: 0 0 6px rgba(0,255,255,0.5);
+.resourcelinkwrapping a {
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 0 8px rgba(255,255,255,0.8),
+               0 0 16px rgba(0,255,255,0.4);
 }
 
 .description {
-  font-style: italic;
-  opacity: 0.75;
-  font-size: 0.9em;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  opacity: 0.7;
+  font-size: 0.85em;
+  margin-top: 0.6em;
 }
-
-
 
 
 .domainlinkwrapper{
