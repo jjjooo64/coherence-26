@@ -257,17 +257,18 @@ a {
   0% {
     width: calc( var(--resourcesHeightRatio) * 100% );
     height: var(--resourcesHeight);
-    opacity: 0.5;
+    opacity: 0;
     border-width: 1px;
   }
 
   30% {
 
-    opacity: 0.5;
+    opacity: 1;
     border-width: 6px;
   }
   70% {
-    opacity: 0.2;
+    opacity: 0.7;
+    border-width: 5px;
   }
   100% {
     width: 100%;
