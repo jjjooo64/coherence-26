@@ -122,82 +122,104 @@ a {
 
 
 
-#resources {
-  height: 50vh;
-  overflow: hidden;
-  position: relative;
-  background: transparent;
-  color: rgba(255,255,255,0.65);
-  font-family: serif;
+.resourcelinkwrapping{
+    border-style: outset;
+    border-width: thick;
+    padding: 4px;
+    width:fit-content;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    overflow-wrap: break-word;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: normal;
+    font-family: Palatino, "Palatino Linotype", Georgia, serif;
+    letter-spacing: 0.06em;
+}
+
+.description{
   font-style: normal;
-  letter-spacing: 0.3em;
-  text-transform: lowercase;
-  text-shadow: 0 0 8px rgba(255,255,255,0.8),
-               0 0 16px rgba(0,255,255,0.4);
+  font-weight: bold;
+}
+
+#list-block {
+  position: relative;
+  width: 88%;
+  margin: auto;
+}
+
+#resources {
+  height: 30vh;
+  overflow: scroll;
+  background: transparent;
+  color: transparent;
+  font-style: normal;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 18%,
-    black 82%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 18%,
-    black 82%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
 }
 
-#resources-inner {
-  will-change: transform;
+#resources::-webkit-scrollbar {
+  display: none;
 }
 
-.resourcelisting0,
-.resourcelisting1 {
+#resources p,
+#resources a,
+#resources .resourcelinkwrapping {
+  background-image:
+    radial-gradient(ellipse 45% 35% at 30% 40%, rgba(255,255,255,0.9), transparent 70%),
+    linear-gradient(
+      115deg,
+      #f4ffff 0%,
+      #b7e4ea 14%,
+      #e6d4f6 28%,
+      #d4f0dc 42%,
+      #f8efc4 56%,
+      #f0d4e2 70%,
+      #d8f4f8 84%,
+      #e8ffff 100%
+    );
+  background-size: 100vw 100vh, 100vw 80vh;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-family: Palatino, "Palatino Linotype", Georgia, serif;
+  font-weight: bold;
+  font-style: normal;
+}
+
+.resourcelisting0, .resourcelisting1{
   margin-top: 12vh;
-  font-size: 2.4vh;
-  border: none;
+  margin-bottom: 0;
+  font-size: x-large;
+  font-family: Palatino, "Palatino Linotype", Georgia, serif;
+  font-weight: bold;
+  font-style: normal;
+  letter-spacing: 0.04em;
 }
 
-.resourcelisting0:last-child,
-.resourcelisting1:last-child {
+#resources > :last-child {
   margin-bottom: 12vh;
 }
-
-.metaurl {
-  font-size: 0.75em;
-  letter-spacing: 0.35em;
-  opacity: 0.8;
-  margin-bottom: 0.6em;
-}
-
-.resourcelinkwrapping {
-  border: none;
-  background: transparent;
-  width: auto;
-  max-width: 95%;
-  margin: 0.8em auto;
-  padding: 0;
-  letter-spacing: 0.25em;
-}
-
-.resourcelinkwrapping a {
-  color: rgba(255,255,255,0.7);
-  text-shadow: 0 0 8px rgba(255,255,255,0.8),
-               0 0 16px rgba(0,255,255,0.4);
-}
-
-.description {
-  font-style: normal;
-  letter-spacing: 0.2em;
-  opacity: 0.7;
-  font-size: 0.85em;
-  margin-top: 0.6em;
-}
-
-
 .domainlinkwrapper{
   font-size:35px;
   padding:10px;
@@ -234,10 +256,6 @@ a:active{
 
   color:cyan;
   font-style: normal;
-}
-
-.resourcelisting0, .resourcelisting1{
-  font-size: x-large;
 }
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -372,61 +390,20 @@ async function main() {
           otherDomain.push(entry);
   }
     
-class expanderInstaller {
-    /*
-    static #expanders = [];
-    static #expandListener(e) {
-        resourcesdiv.className = "resourcesexpanded";
-        for (const exp of this.#expanders) exp.hidden = true;
-        // hide the shared rings too
-        // document.querySelectorAll('#list-block > .ring').forEach(r => r.remove());
-    }
-    */
-    //dont want interactive expanders as of right now
-    static install(id, parent) {
-        var expander = document.createElement("div");
-        expander.className = "expander";
-        expander.id = id;
-        parent.appendChild(expander);
-
-        return; 
-        /*
-        var expandBtn = createElementWithTag_Text_andAppendTo_("button", "expand list", expander);
-        expander.addEventListener("click", (e) => this.#expandListener(e));
-        
-        this.#expanders.push(expander);
-        return expander;
-        */
-    }
-} 
-    
-
-    
   var extrainfodiv = document.createElement("div");
   center.appendChild(extrainfodiv);
   extrainfodiv.className = "extrainfo";
   extrainfodiv.id = "extrainfo";
 
 
-
+    var listBlock = document.createElement("div");
+listBlock.id = "list-block";
+center.appendChild(listBlock);
 
 var resourcesdiv = document.createElement("div");
 resourcesdiv.className = "resources";
 resourcesdiv.id = "resources";
-center.appendChild(resourcesdiv);
-
-var resourcesInner = document.createElement("div");
-resourcesInner.id = "resources-inner";
-resourcesdiv.appendChild(resourcesInner);
-
-
-// rings removed
-
-
-    
-
-    
-
+listBlock.appendChild(resourcesdiv);
 
   var goodbye = document.createElement("div");
   goodbye.className = "goodbye";
@@ -444,7 +421,7 @@ resourcesdiv.appendChild(resourcesInner);
       {
         this.rendered[url]=true;
         var div = document.createElement("div");
-        resourcesInner.appendChild(div);
+        resourcesdiv.appendChild(div);
         createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl";
         var rlw = document.createElement("div");
         rlw.className = "resourcelinkwrapping";
@@ -518,206 +495,6 @@ resourcesdiv.appendChild(resourcesInner);
       div.className = "domainlinkwrapper";
       div.getElementsByTagName("a")[0].className = "domainlink";
     }
-
-  // precompute letter states once
-  const letterStates = new Map();
-  const STEPS = 20;
-
-  function buildStates() {
-    const container = document.getElementById('resources');
-    if (!container) return;
-    const letters = container.querySelectorAll('.vapor-letter');
-    letterStates.clear();
-
-    letters.forEach((letter, i) => {
-      const seed = Math.random() * 1000;
-      const states = [];
-      for (let s = 0; s <= STEPS; s++) {
-        const dist = s / STEPS;
-        if (dist < 0.01) {
-          states.push(null);
-          continue;
-        }
-        const wave = Math.sin(seed + dist * 4) * dist;
-        const wave2 = Math.cos(seed * 1.3 + dist * 3) * dist;
-        const blur = dist * 5;
-        const scaleX = 1 + dist * 0.5 + wave * 0.2;
-        const scaleY = 1 + dist * 0.3 + wave2 * 0.15;
-        const skew = wave * 12;
-        const dx = wave2 * 8 * dist;
-        const dy = wave * 6 * dist;
-        const opacity = 1 - dist * 0.9;
-        states.push({
-          filter: `blur(${blur.toFixed(2)}px)`,
-          transform: `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)}) skewX(${skew.toFixed(2)}deg)`,
-          opacity: opacity.toFixed(3)
-        });
-      }
-      letterStates.set(letter, states);
-    });
-  }
-
-  // letter offsets relative to resourcesInner (precomputed)
-  const letterOffsets = new Map();
-
-  function buildOffsets() {
-    letterOffsets.clear();
-    const letters = resourcesInner.querySelectorAll('.vapor-letter');
-    letters.forEach(letter => {
-      letterOffsets.set(letter, letter.offsetTop + letter.offsetHeight / 2);
-    });
-  }
-
-  function vaporize() {
-    const viewH = resourcesdiv.clientHeight;
-    const fadeZone = viewH * 0.28;
-    const scroll = currentY;
-
-    letterOffsets.forEach((offset, letter) => {
-      const states = letterStates.get(letter);
-      if (!states) return;
-      const posInView = offset - scroll;
-      let dist = 0;
-      if (posInView < fadeZone) {
-        dist = (fadeZone - posInView) / fadeZone;
-      } else if (posInView > viewH - fadeZone) {
-        dist = (posInView - (viewH - fadeZone)) / fadeZone;
-      }
-      dist = Math.min(Math.max(dist, 0), 1);
-      const idx = Math.round(dist * STEPS);
-      const state = states[idx];
-
-      if (!state) {
-        if (letter._lastIdx !== -1 && letter._lastIdx !== undefined) {
-          letter.style.transform = '';
-          letter.style.filter = '';
-          letter.style.opacity = '';
-          letter._lastIdx = -1;
-        }
-        return;
-      }
-      if (letter._lastIdx === idx) return;
-      letter._lastIdx = idx;
-      letter.style.filter = state.filter;
-      letter.style.transform = state.transform;
-      letter.style.opacity = state.opacity;
-      letter.style.display = 'inline-block';
-    });
-  }
-
-  // physics-limited scroll (transform-based)
-  let currentY = 0;
-  let velocity = 0;
-  let targetY = 0;
-  window.MAX_TARGET_DIST = 180;
-  window.MAX_ACCEL = 1.2;
-  window.MAX_VEL = 8;
-  let lastVaporTime = 0;
-  const VAPOR_INTERVAL = 50;
-
-  function maxScroll() {
-    return Math.max(0, resourcesInner.scrollHeight - resourcesdiv.clientHeight);
-  }
-
-  function clampTarget(proposed) {
-    const max = maxScroll();
-    proposed = Math.max(0, Math.min(proposed, max));
-    const lead = proposed - currentY;
-    if (Math.abs(lead) > window.MAX_TARGET_DIST) {
-      return currentY + Math.sign(lead) * window.MAX_TARGET_DIST;
-    }
-    return proposed;
-  }
-
-  resourcesdiv.addEventListener('wheel', e => {
-    e.preventDefault();
-    targetY = clampTarget(targetY + e.deltaY * 0.5);
-  }, { passive: false });
-
-  let touchStartY = 0;
-  resourcesdiv.addEventListener('touchstart', e => {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-
-  resourcesdiv.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const dy = touchStartY - e.touches[0].clientY;
-    targetY = clampTarget(targetY + dy * 0.6);
-    touchStartY = e.touches[0].clientY;
-  }, { passive: false });
-
-  function scrollLoop() {
-    const dist = targetY - currentY;
-    const absDist = Math.abs(dist);
-    const maxA = window.MAX_ACCEL || 1.2;
-    const maxV = window.MAX_VEL || 8;
-
-    if (absDist > 0.5 || Math.abs(velocity) > 0.15) {
-      const maxStopSpeed = Math.min(maxV, Math.sqrt(2 * maxA * Math.max(absDist, 0.01)));
-      let desiredVel = Math.sign(dist) * Math.min(absDist * 0.2, maxStopSpeed);
-
-      let accel = desiredVel - velocity;
-      accel = Math.max(-maxA, Math.min(maxA, accel));
-      velocity += accel;
-
-      if (Math.abs(velocity) > maxStopSpeed) {
-        velocity = Math.sign(velocity) * maxStopSpeed;
-      }
-
-      currentY += velocity;
-      const max = maxScroll();
-      currentY = Math.max(0, Math.min(currentY, max));
-      resourcesInner.style.transform = `translateY(${-currentY}px)`;
-
-      const now = performance.now();
-      if (now - lastVaporTime > VAPOR_INTERVAL) {
-        vaporize();
-        lastVaporTime = now;
-      }
-    } else {
-      velocity = 0;
-      currentY = targetY;
-      resourcesInner.style.transform = `translateY(${-currentY}px)`;
-    }
-    requestAnimationFrame(scrollLoop);
-  }
-  scrollLoop();
-
-  window.addEventListener('resize', () => { buildStates(); buildOffsets(); vaporize(); });
-
-  // wrap every letter so vaporize can target them individually
-  // preserve word boundaries so wrapping stays natural
-  function wrapLetters(root) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-    const texts = [];
-    let node;
-    while (node = walker.nextNode()) texts.push(node);
-    texts.forEach(textNode => {
-      if (!textNode.textContent.trim()) return;
-      const frag = document.createDocumentFragment();
-      const parts = textNode.textContent.split(/(\s+)/);
-      parts.forEach(part => {
-        if (/^\s+$/.test(part)) {
-          frag.appendChild(document.createTextNode(part));
-        } else {
-          const word = document.createElement('span');
-          word.style.whiteSpace = 'nowrap';
-          for (const ch of part) {
-            const span = document.createElement('span');
-            span.className = 'vapor-letter';
-            span.textContent = ch;
-            word.appendChild(span);
-          }
-          frag.appendChild(word);
-        }
-      });
-      textNode.parentNode.replaceChild(frag, textNode);
-    });
-  }
-  wrapLetters(resourcesInner);
-  buildStates();
-  buildOffsets();
-  vaporize();
 }
 
 main();
