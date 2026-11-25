@@ -126,12 +126,12 @@ a {
     border-style: outset;
     border-width: thick;
     padding: 4px;
-    width: fit-content;
-    max-width: 80%;
+    max-width: 90%;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
     overflow-wrap: break-word;
+    font-size: large;
 }
 
 .description{
@@ -502,6 +502,7 @@ listBlock.appendChild(resourcesdiv);
 expanderInstaller.install("expander-bottom", listBlock);
 
 // single set of rings, centered on the whole block
+    /*
 for (var i = 0; i < 6; i++) {
     var ring = document.createElement("span");
     ring.className = "ring";
@@ -509,7 +510,7 @@ for (var i = 0; i < 6; i++) {
 }
 
 
-    
+    */
 
 
     
