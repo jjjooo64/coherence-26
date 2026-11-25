@@ -181,29 +181,44 @@ a {
     align-items: start; 
 }
 
-#expander-top > button .ring {
-    bottom: 0%;
-    transform: translate(-50%, 50%);
+
+
+
+
+
+
+
+#list-block {
+  position: relative;
 }
 
-#expander-bottom > button .ring {
-    top: 0%;
-    transform: translate(-50%, -50%);
+#list-block > .ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(250, 250, 250, 0.7);
+  transform: translate(-50%, -50%);
+  animation: ripple 12s ease-out infinite;
+  pointer-events: none;
+  z-index: 1;
 }
 
-.expander > button .ring {
-    position: absolute;
-    /* top: 0%; */
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    border: 0px solid rgba(250, 250, 250, 1);
-    /* transform: translate(-50%, -50%); */
-    animation: ripple 12s ease-out infinite;
-    filter: blur(1px);
-    pointer-events: none;
+#resources {
+  position: relative;
+  z-index: 2;          /* covers the rings inside the text area */
 }
+
+.expander {
+  overflow: hidden;    /* rings only visible in the margins */
+  position: relative;
+  z-index: 1;
+}
+
+
+
 
 .expander > button .ring:nth-child(1) { animation-delay: 0s; }
 .expander > button .ring:nth-child(2) { animation-delay: 2s; }
@@ -230,7 +245,7 @@ a {
   }
   100% {
     width: 100%;
-    height: 200%;
+    height: 100%;
     opacity: 0;
     border-width: 1px;
   }
@@ -411,32 +426,26 @@ async function main() {
           otherDomain.push(entry);
   }
     
-  class expanderInstaller {
-       static #expanders= [];
-       static #expandListener (e) {
-                resourcesdiv.className = "resourcesexpanded";
-                for (e of this.#expanders) e.hidden = true;
-        }
-       
-       static install(id,parent){
-            
-            
-            var expander = document.createElement("div");
-            expander.className = "expander";
-            expander.id=id;
-            var expandBtn  = createElementWithTag_Text_andAppendTo_("button","expand list",expander);
-              
-            for (var i = 0; i < 6; i++) {
-              var ring = document.createElement("span");
-              ring.className = "ring";
-              expandBtn.appendChild(ring);
-            }
-        
-            expander.addEventListener("click", (e) => this.#expandListener(e) );
-            parent.appendChild(expander);
-            this.#expanders.push(expander);
-        }
-  }
+class expanderInstaller {
+    static #expanders = [];
+    static #expandListener(e) {
+        resourcesdiv.className = "resourcesexpanded";
+        for (const exp of this.#expanders) exp.hidden = true;
+        // hide the shared rings too
+        document.querySelectorAll('#list-block > .ring').forEach(r => r.remove());
+    }
+
+    static install(id, parent) {
+        var expander = document.createElement("div");
+        expander.className = "expander";
+        expander.id = id;
+        var expandBtn = createElementWithTag_Text_andAppendTo_("button", "expand list", expander);
+        expander.addEventListener("click", (e) => this.#expandListener(e));
+        parent.appendChild(expander);
+        this.#expanders.push(expander);
+        return expander;
+    }
+}
     
 
     
@@ -444,25 +453,31 @@ async function main() {
   center.appendChild(extrainfodiv);
   extrainfodiv.className = "extrainfo";
   extrainfodiv.id = "extrainfo";
+
+
+    var listBlock = document.createElement("div");
+listBlock.id = "list-block";
+center.appendChild(listBlock);
+
+expanderInstaller.install("expander-top", listBlock);
+
+var resourcesdiv = document.createElement("div");
+resourcesdiv.className = "resources";
+resourcesdiv.id = "resources";
+listBlock.appendChild(resourcesdiv);
+
+expanderInstaller.install("expander-bottom", listBlock);
+
+// single set of rings, centered on the whole block
+for (var i = 0; i < 6; i++) {
+    var ring = document.createElement("span");
+    ring.className = "ring";
+    listBlock.appendChild(ring);
+}
+
+
     
-  expanderInstaller.install("expander-top", center);
-    
-  var resourcesdiv = document.createElement("div");
-  center.appendChild(resourcesdiv);
-  resourcesdiv.className = "resources";
-  resourcesdiv.id = "resources";
 
-
-
-  
-
-
-    expanderInstaller.install("expander-bottom", center);
-    
-   
-    
-
-    
 
     
 
