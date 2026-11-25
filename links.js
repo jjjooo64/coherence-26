@@ -137,15 +137,15 @@ a {
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 18%,
-    black 82%,
+    black 8%,
+    black 92%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 18%,
-    black 82%,
+    black 8%,
+    black 92%,
     transparent 100%
   );
 }
@@ -572,7 +572,7 @@ resourcesdiv.appendChild(resourcesInner);
 
   function vaporize() {
     const viewH = resourcesdiv.clientHeight;
-    const fadeZone = viewH * 0.28;
+    const fadeZone = viewH * 0.12;
     const scroll = currentY;
 
     letterOffsets.forEach((offset, letter) => {
@@ -704,21 +704,29 @@ resourcesdiv.appendChild(resourcesInner);
     const maxV = window.MAX_VEL || 12;
     const minA = 1 / maxA;
 
+    // snap and kill velocity when close enough — prevents pendulum
+    if (absDist < 1.5 && Math.abs(velocity) < 1.5) {
+      velocity = 0;
+      accel = 1;
+      currentY = targetY;
+      resourcesInner.style.transform = `translateY(${-currentY}px)`;
+      requestAnimationFrame(scrollLoop);
+      return;
+    }
+
     if (absDist > 0.5 || Math.abs(velocity) > 0.2) {
-      // desired accel multiplier: >1 to speed up in direction of target, <1 to slow
-      const wantSpeed = Math.sign(dist) * Math.min(maxV, absDist * 0.15);
+      const approaching = Math.sign(velocity) === Math.sign(dist) || Math.abs(velocity) < 0.3;
       let desiredAccel = 1;
-      if (Math.abs(velocity) > 0.2) {
-        if (Math.sign(wantSpeed) === Math.sign(velocity) && Math.abs(wantSpeed) > Math.abs(velocity)) {
-          desiredAccel = maxA;
-        } else {
-          desiredAccel = minA;
-        }
+
+      if (Math.abs(velocity) < 0.3 && absDist > 1) {
+        // gentle kick only when nearly stopped and target is away
+        velocity = Math.sign(dist) * 0.4;
+        desiredAccel = maxA;
+      } else if (!approaching || absDist < Math.abs(velocity) * 8) {
+        // need to slow or reverse — decelerate
+        desiredAccel = minA;
       } else {
         desiredAccel = maxA;
-        if (Math.abs(velocity) < 0.2 && Math.abs(dist) > 0.5) {
-          velocity = Math.sign(dist) * 0.3;
-        }
       }
 
       let da = desiredAccel - accel;
@@ -729,7 +737,15 @@ resourcesdiv.appendChild(resourcesInner);
       velocity *= accel;
       if (Math.abs(velocity) > maxV) velocity = Math.sign(velocity) * maxV;
 
-      currentY += velocity;
+      // if we would cross the target this frame, stop on it
+      if (Math.sign(targetY - currentY) !== Math.sign(targetY - (currentY + velocity)) && Math.abs(velocity) > 0) {
+        currentY = targetY;
+        velocity = 0;
+        accel = 1;
+      } else {
+        currentY += velocity;
+      }
+
       const max = maxScroll();
       currentY = Math.max(0, Math.min(currentY, max));
       resourcesInner.style.transform = `translateY(${-currentY}px)`;
@@ -782,6 +798,8 @@ resourcesdiv.appendChild(resourcesInner);
   }
   wrapLetters(resourcesInner);
   buildStates();
+  // force layout before measuring
+  resourcesInner.offsetHeight;
   buildOffsets();
   vaporize();
 }
