@@ -123,9 +123,9 @@ a {
 
 
 #resources {
-  height: 45vh;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  height: 50vh;
+  overflow: hidden;
+  position: relative;
   background: transparent;
   color: rgba(255,255,255,0.65);
   font-family: serif;
@@ -134,8 +134,6 @@ a {
   text-transform: lowercase;
   text-shadow: 0 0 8px rgba(255,255,255,0.8),
                0 0 16px rgba(0,255,255,0.4);
-  -ms-overflow-style: none;
-  scrollbar-width: none;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -152,8 +150,8 @@ a {
   );
 }
 
-#resources::-webkit-scrollbar {
-  display: none;
+#resources-inner {
+  will-change: transform;
 }
 
 .resourcelisting0,
@@ -417,6 +415,10 @@ resourcesdiv.className = "resources";
 resourcesdiv.id = "resources";
 center.appendChild(resourcesdiv);
 
+var resourcesInner = document.createElement("div");
+resourcesInner.id = "resources-inner";
+resourcesdiv.appendChild(resourcesInner);
+
 
 // rings removed
 
@@ -442,7 +444,7 @@ center.appendChild(resourcesdiv);
       {
         this.rendered[url]=true;
         var div = document.createElement("div");
-        resourcesdiv.appendChild(div);
+        resourcesInner.appendChild(div);
         createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl";
         var rlw = document.createElement("div");
         rlw.className = "resourcelinkwrapping";
@@ -555,40 +557,38 @@ center.appendChild(resourcesdiv);
     });
   }
 
-  function vaporize() {
-    const container = document.getElementById('resources');
-    if (!container) return;
-    const letters = container.querySelectorAll('.vapor-letter');
-    const rect = container.getBoundingClientRect();
-    const fadeZone = rect.height * 0.28;
+  // letter offsets relative to resourcesInner (precomputed)
+  const letterOffsets = new Map();
 
+  function buildOffsets() {
+    letterOffsets.clear();
+    const letters = resourcesInner.querySelectorAll('.vapor-letter');
     letters.forEach(letter => {
+      letterOffsets.set(letter, letter.offsetTop + letter.offsetHeight / 2);
+    });
+  }
+
+  function vaporize() {
+    const viewH = resourcesdiv.clientHeight;
+    const fadeZone = viewH * 0.28;
+    const scroll = currentY;
+
+    letterOffsets.forEach((offset, letter) => {
       const states = letterStates.get(letter);
       if (!states) return;
-      const ir = letter.getBoundingClientRect();
-      const center = ir.top + ir.height / 2;
-      // skip letters well inside the safe middle
-      if (center > rect.top + fadeZone + 20 && center < rect.bottom - fadeZone - 20) {
-        if (letter._lastIdx !== -1 && letter._lastIdx !== undefined) {
-          letter.style.transform = '';
-          letter.style.filter = '';
-          letter.style.opacity = '';
-          letter._lastIdx = -1;
-        }
-        return;
-      }
+      const posInView = offset - scroll;
       let dist = 0;
-      if (center < rect.top + fadeZone) {
-        dist = (rect.top + fadeZone - center) / fadeZone;
-      } else if (center > rect.bottom - fadeZone) {
-        dist = (center - (rect.bottom - fadeZone)) / fadeZone;
+      if (posInView < fadeZone) {
+        dist = (fadeZone - posInView) / fadeZone;
+      } else if (posInView > viewH - fadeZone) {
+        dist = (posInView - (viewH - fadeZone)) / fadeZone;
       }
       dist = Math.min(Math.max(dist, 0), 1);
       const idx = Math.round(dist * STEPS);
       const state = states[idx];
 
       if (!state) {
-        if (letter._lastIdx !== -1) {
+        if (letter._lastIdx !== -1 && letter._lastIdx !== undefined) {
           letter.style.transform = '';
           letter.style.filter = '';
           letter.style.opacity = '';
@@ -605,17 +605,22 @@ center.appendChild(resourcesdiv);
     });
   }
 
-  // physics-limited scroll
+  // physics-limited scroll (transform-based)
   let currentY = 0;
   let velocity = 0;
   let targetY = 0;
   window.MAX_TARGET_DIST = 180;
   window.MAX_ACCEL = 1.2;
+  window.MAX_VEL = 8;
   let lastVaporTime = 0;
-  const VAPOR_INTERVAL = 32;
+  const VAPOR_INTERVAL = 50;
+
+  function maxScroll() {
+    return Math.max(0, resourcesInner.scrollHeight - resourcesdiv.clientHeight);
+  }
 
   function clampTarget(proposed) {
-    const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+    const max = maxScroll();
     proposed = Math.max(0, Math.min(proposed, max));
     const lead = proposed - currentY;
     if (Math.abs(lead) > window.MAX_TARGET_DIST) {
@@ -645,9 +650,10 @@ center.appendChild(resourcesdiv);
     const dist = targetY - currentY;
     const absDist = Math.abs(dist);
     const maxA = window.MAX_ACCEL || 1.2;
+    const maxV = window.MAX_VEL || 8;
 
     if (absDist > 0.5 || Math.abs(velocity) > 0.15) {
-      const maxStopSpeed = Math.sqrt(2 * maxA * Math.max(absDist, 0.01));
+      const maxStopSpeed = Math.min(maxV, Math.sqrt(2 * maxA * Math.max(absDist, 0.01)));
       let desiredVel = Math.sign(dist) * Math.min(absDist * 0.2, maxStopSpeed);
 
       let accel = desiredVel - velocity;
@@ -659,9 +665,9 @@ center.appendChild(resourcesdiv);
       }
 
       currentY += velocity;
-      const max = resourcesdiv.scrollHeight - resourcesdiv.clientHeight;
+      const max = maxScroll();
       currentY = Math.max(0, Math.min(currentY, max));
-      resourcesdiv.scrollTop = currentY;
+      resourcesInner.style.transform = `translateY(${-currentY}px)`;
 
       const now = performance.now();
       if (now - lastVaporTime > VAPOR_INTERVAL) {
@@ -671,13 +677,13 @@ center.appendChild(resourcesdiv);
     } else {
       velocity = 0;
       currentY = targetY;
-      resourcesdiv.scrollTop = currentY;
+      resourcesInner.style.transform = `translateY(${-currentY}px)`;
     }
     requestAnimationFrame(scrollLoop);
   }
   scrollLoop();
 
-  window.addEventListener('resize', () => { buildStates(); vaporize(); });
+  window.addEventListener('resize', () => { buildStates(); buildOffsets(); vaporize(); });
 
   // wrap every letter so vaporize can target them individually
   // preserve word boundaries so wrapping stays natural
@@ -708,8 +714,9 @@ center.appendChild(resourcesdiv);
       textNode.parentNode.replaceChild(frag, textNode);
     });
   }
-  wrapLetters(resourcesdiv);
+  wrapLetters(resourcesInner);
   buildStates();
+  buildOffsets();
   vaporize();
 }
 
