@@ -517,13 +517,42 @@ center.appendChild(resourcesdiv);
       div.getElementsByTagName("a")[0].className = "domainlink";
     }
 
-  // precomputed per-letter seeds (stable for the page load)
-  const letterSeeds = new Map();
-  function getSeed(letter, i) {
-    if (!letterSeeds.has(letter)) {
-      letterSeeds.set(letter, Math.random() * 1000);
-    }
-    return letterSeeds.get(letter);
+  // precompute letter states once
+  const letterStates = new Map();
+  const STEPS = 20;
+
+  function buildStates() {
+    const container = document.getElementById('resources');
+    if (!container) return;
+    const letters = container.querySelectorAll('.vapor-letter');
+    letterStates.clear();
+
+    letters.forEach((letter, i) => {
+      const seed = Math.random() * 1000;
+      const states = [];
+      for (let s = 0; s <= STEPS; s++) {
+        const dist = s / STEPS;
+        if (dist < 0.01) {
+          states.push(null);
+          continue;
+        }
+        const wave = Math.sin(seed + dist * 4) * dist;
+        const wave2 = Math.cos(seed * 1.3 + dist * 3) * dist;
+        const blur = dist * 5;
+        const scaleX = 1 + dist * 0.5 + wave * 0.2;
+        const scaleY = 1 + dist * 0.3 + wave2 * 0.15;
+        const skew = wave * 12;
+        const dx = wave2 * 8 * dist;
+        const dy = wave * 6 * dist;
+        const opacity = 1 - dist * 0.9;
+        states.push({
+          filter: `blur(${blur.toFixed(2)}px)`,
+          transform: `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)}) skewX(${skew.toFixed(2)}deg)`,
+          opacity: opacity.toFixed(3)
+        });
+      }
+      letterStates.set(letter, states);
+    });
   }
 
   function vaporize() {
@@ -532,9 +561,10 @@ center.appendChild(resourcesdiv);
     const letters = container.querySelectorAll('.vapor-letter');
     const rect = container.getBoundingClientRect();
     const fadeZone = rect.height * 0.28;
-    const scroll = container.scrollTop;
 
-    letters.forEach((letter, i) => {
+    letters.forEach(letter => {
+      const states = letterStates.get(letter);
+      if (!states) return;
       const ir = letter.getBoundingClientRect();
       const center = ir.top + ir.height / 2;
       let dist = 0;
@@ -544,37 +574,29 @@ center.appendChild(resourcesdiv);
         dist = (center - (rect.bottom - fadeZone)) / fadeZone;
       }
       dist = Math.min(Math.max(dist, 0), 1);
+      const idx = Math.round(dist * STEPS);
+      const state = states[idx];
 
-      if (dist < 0.01) {
-        if (letter.style.transform) {
+      if (!state) {
+        if (letter._lastIdx !== -1) {
           letter.style.transform = '';
           letter.style.filter = '';
           letter.style.opacity = '';
+          letter._lastIdx = -1;
         }
         return;
       }
-
-      const seed = getSeed(letter, i);
-      const wave = Math.sin(scroll * 0.02 + seed) * dist;
-      const wave2 = Math.cos(scroll * 0.015 + seed * 1.3) * dist;
-
-      const blur = dist * 5;
-      const scaleX = 1 + dist * 0.5 + wave * 0.2;
-      const scaleY = 1 + dist * 0.3 + wave2 * 0.15;
-      const skew = wave * 12;
-      const dx = wave2 * 8 * dist;
-      const dy = wave * 6 * dist;
-      const opacity = 1 - dist * 0.9;
-
-      letter.style.filter = `blur(${blur}px)`;
-      letter.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY}) skewX(${skew}deg)`;
-      letter.style.opacity = opacity;
+      if (letter._lastIdx === idx) return;
+      letter._lastIdx = idx;
+      letter.style.filter = state.filter;
+      letter.style.transform = state.transform;
+      letter.style.opacity = state.opacity;
       letter.style.display = 'inline-block';
     });
   }
 
   resourcesdiv.addEventListener('scroll', vaporize);
-  window.addEventListener('resize', vaporize);
+  window.addEventListener('resize', () => { buildStates(); vaporize(); });
 
   // sluggish, water-like scroll
   let targetScroll = 0;
@@ -605,7 +627,7 @@ center.appendChild(resourcesdiv);
     if (Math.abs(diff) > 0.1) {
       currentScroll += diff * 0.06;
       resourcesdiv.scrollTop = currentScroll;
-      if (Math.abs(currentScroll - lastVaporScroll) > 2) {
+      if (Math.abs(currentScroll - lastVaporScroll) > 1) {
         vaporize();
         lastVaporScroll = currentScroll;
       }
@@ -637,6 +659,7 @@ center.appendChild(resourcesdiv);
     });
   }
   wrapLetters(resourcesdiv);
+  buildStates();
   vaporize();
 }
 
