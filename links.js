@@ -87,7 +87,7 @@ a {
 }
 
 #secretbox {
-  background: linear-gradient(
+  background-image: linear-gradient(
     115deg,
     #e8ffff 0%,
     #b8f0f0 20%,
@@ -97,18 +97,26 @@ a {
     #e8ffff 100%
   );
   background-size: 200% 200%;
+  background-position: var(--pearl-x) var(--pearl-y);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+@property --pearl-x { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
+@property --pearl-y { syntax: "<percentage>"; inherits: true; initial-value: 30%; }
+
+html {
   animation: pearl 8s ease-in-out infinite;
 }
 
 @keyframes pearl {
-  0%   { background-position: 0% 30%; }
-  25%  { background-position: 40% 70%; }
-  50%  { background-position: 80% 20%; }
-  75%  { background-position: 30% 80%; }
-  100% { background-position: 0% 30%; }
+  0%   { --pearl-x: 0%;  --pearl-y: 30%; }
+  25%  { --pearl-x: 40%; --pearl-y: 70%; }
+  50%  { --pearl-x: 80%; --pearl-y: 20%; }
+  75%  { --pearl-x: 30%; --pearl-y: 80%; }
+  100% { --pearl-x: 0%;  --pearl-y: 30%; }
 }
 
 
@@ -154,60 +162,39 @@ a {
   height: 30vh;
   overflow: scroll;
   background: transparent;
-  color: transparent;
   font-style: normal;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
 }
 
 #resources::-webkit-scrollbar {
   display: none;
 }
 
-#resources p,
-#resources a,
-#resources .resourcelinkwrapping {
-  background-image:
-    radial-gradient(ellipse 45% 35% at 30% 40%, rgba(255,255,255,0.9), transparent 70%),
-    linear-gradient(
-      115deg,
-      #f4ffff 0%,
-      #b7e4ea 14%,
-      #e6d4f6 28%,
-      #d4f0dc 42%,
-      #f8efc4 56%,
-      #f0d4e2 70%,
-      #d8f4f8 84%,
-      #e8ffff 100%
-    );
-  background-size: 100vw 100vh, 100vw 80vh;
-  background-position: center, center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  font-family: Palatino, "Palatino Linotype", Georgia, serif;
-  font-weight: bold;
-  font-style: normal;
+.edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.edge-top {
+  top: 0;
+  background: linear-gradient(to bottom, #000 0%, rgba(0,0,0,0) 100%);
+}
+
+.edge-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, #000 0%, rgba(0,0,0,0) 100%);
 }
 
 .resourcelisting0, .resourcelisting1{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   margin-top: 12vh;
   margin-bottom: 0;
   font-size: x-large;
@@ -215,6 +202,43 @@ a {
   font-weight: bold;
   font-style: normal;
   letter-spacing: 0.04em;
+}
+
+.resourcelisting0 > *,
+.resourcelisting1 > * {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  white-space: normal;
+}
+
+#resources .pearltext {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background-image: linear-gradient(
+    115deg,
+    #e8ffff 0%,
+    #b8f0f0 20%,
+    #f0e8ff 40%,
+    #e0f8e8 60%,
+    #fff8e0 80%,
+    #e8ffff 100%
+  );
+  background-size: 200% 200%;
+  background-position: var(--pearl-x) var(--pearl-y);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-family: Palatino, "Palatino Linotype", Georgia, serif;
+  font-weight: bold;
+  font-style: normal;
 }
 
 #resources > :last-child {
@@ -285,7 +309,7 @@ function replaceClusters(str, alphabet, replacer) {
 
 function parseMetaurl(metaurl)
 {
-    var lower = metaurl.toLowerCase(); 
+    var lower = metaurl.toLowerCase();
     lower = replaceClusters(lower, "/#", "/");
     lower = lower.at(-1)=="/" ? lower.slice(0,-1) : lower;
     var splitAt = lower.lastIndexOf("/");
@@ -321,7 +345,7 @@ async function main() {
   greetingsdiv.appendChild(secretBox);
   secretBox.innerText = renderParameters.verificationText || renderParameters.boxFiller;
 
-  // Secret tap sequence to open admin: 
+  // Secret tap sequence to open admin:
   // 1 (start) -> 2 (0.7-1.2s) -> 3 (0-300ms) -> 4 (0.7-1.2s) -> 5 (0.7-1.2s) -> 6 (0-300ms)
   (function () {
     const steps = [
@@ -405,6 +429,14 @@ resourcesdiv.className = "resources";
 resourcesdiv.id = "resources";
 listBlock.appendChild(resourcesdiv);
 
+var edgeTop = document.createElement("div");
+edgeTop.className = "edge edge-top";
+listBlock.appendChild(edgeTop);
+
+var edgeBottom = document.createElement("div");
+edgeBottom.className = "edge edge-bottom";
+listBlock.appendChild(edgeBottom);
+
   var goodbye = document.createElement("div");
   goodbye.className = "goodbye";
   goodbye.id = "goodbye";
@@ -422,26 +454,27 @@ listBlock.appendChild(resourcesdiv);
         this.rendered[url]=true;
         var div = document.createElement("div");
         resourcesdiv.appendChild(div);
-        createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl";
+        createElementWithTag_Text_andAppendTo_("p",metaurl,div).className="metaurl pearltext";
         var rlw = document.createElement("div");
         rlw.className = "resourcelinkwrapping";
         if (resource.nonclickable)
         {
           rlw.textContent = url;
+          rlw.classList.add("pearltext");
         }
         else
         {
           var a = document.createElement("a");
           a.href = url;
           a.innerText = url;
-          a.className = "resourcelink";
+          a.className = "resourcelink pearltext";
           rlw.appendChild(a);
         }
         div.appendChild(rlw);
         div.className = Object.keys(this.rendered).length%2?"resourcelisting1":"resourcelisting0";
         if(highlight)
           div.classList.add("my-class");
-        createElementWithTag_Text_andAppendTo_("p",resource.description||"",div).className="description";
+        createElementWithTag_Text_andAppendTo_("p",resource.description||"",div).className="description pearltext";
       }
     }
   };
